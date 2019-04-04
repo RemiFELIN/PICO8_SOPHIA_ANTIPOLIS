@@ -214,6 +214,13 @@ function _init()
   zonex1 = 0, --zone ou il vagabonde entre zonex1 et zonex2
   zonex2 = 120,
   }
+  sparks={}
+  for i=1,200 do
+    add(sparks,{
+      x=0,y=0,velx=0,vely=0,
+      r=0,alive=false
+    })
+  end
   -- variable globale
   chrono=0 --sert pour animé le press x to play
   game_state="menu"
@@ -263,27 +270,33 @@ function _update()
     frog_update()
     frog_animate()
     dtb_update()
+    
+    --simple camera
+    cam_x=player.x-64+(player.w/2)
+    if cam_x<map_start then
+      cam_x=map_start
+    end
+    if cam_x>mapx_end-128 then
+      cam_x=mapx_end-128
+    end
+
+    cam_y=player.y-64+(player.h/2)
+    if cam_y<map_start then
+      cam_y=map_start
+    end
+    if cam_y>mapy_end-128 then
+      cam_y=mapy_end-128
+    end
+
   end
 
-  --simple camera
-  cam_x=player.x-64+(player.w/2)
-  if cam_x<map_start then
-    cam_x=map_start
-  end
-  if cam_x>mapx_end-128 then
-    cam_x=mapx_end-128
+  if game_state == "dead" then
+    explosion_update()
   end
 
-  cam_y=player.y-64+(player.h/2)
-  if cam_y<map_start then
-    cam_y=map_start
-  end
-  if cam_y>mapy_end-128 then
-    cam_y=mapy_end-128
-  end
-
-  camera(cam_x,cam_y)
   keys:update()
+  camera(cam_x,cam_y)
+
 
 end
 
@@ -294,21 +307,28 @@ function _draw()
   cls()
   --menu
   if game_state == "menu" then
-  intro()
-end
+    intro()
+  end
 
-if game_state == "plot" then
-  plot()
-end
+  if game_state == "plot" then
+    plot()
+  end
 
-if game_state == "game" then
-  cls()
-  map(0,0,0,0,128,64)
-  spr(player.sp,player.x,player.y,1,2,player.flp)
-  spr(menez.sp,menez.x,menez.y,1,2,menez.flp)
-  spr(frog.sp,frog.x,frog.y,1,1,frog.flp)
-  dialog_menez()
-end
+  if game_state == "game" then
+    map(0,0,0,0,128,64)
+    spr(player.sp,player.x,player.y,1,2,player.flp)
+    spr(menez.sp,menez.x,menez.y,1,2,menez.flp)
+    spr(frog.sp,frog.x,frog.y,1,1,frog.flp)
+    dialog_menez()
+  end
+
+  if game_state == "dead" then
+    cls()
+    map(0,0,0,0,128,64)
+    spr(menez.sp,menez.x,menez.y,1,2,menez.flp)
+    spr(frog.sp,frog.x,frog.y,1,1,frog.flp)
+    draw_explosion()
+  end
 
 end
 
@@ -452,14 +472,13 @@ function player_update()
   interaction = false
   end
 
-  -- if collide_npc(player,frog,8)  then
-  --   hit = true
-  -- else
-  --   hit = false
-  -- end
+  if collide_npc(player,frog,9)  then
+    player_dead()
+  end
+
   if keys:down(5) and interaction then
-  interaction = false
-  start_bulle = true
+    interaction = false
+    start_bulle = true
   end
 
   player.x+=player.dx
@@ -467,10 +486,13 @@ function player_update()
 
   --limit player to map
   if player.x<map_start then
-  player.x=map_start
+    player.x=map_start
   end
   if player.x>mapx_end-player.w then
-  player.x=mapx_end-player.w
+    player.x=mapx_end-player.w
+  end
+  if player.y> mapy_end-player.h/2 then
+    player_dead()
   end
   if player.running or player.jumping or player.falling then waited = false end
 end
@@ -641,7 +663,57 @@ function dialog_menez()
   end
 end
 
+function explosion(x,y,r,particles)
+  local selected = 0
+  for i=1,#sparks do
+    if not sparks[i].alive then
+      sparks[i].x = x
+      sparks[i].y = y
+      sparks[i].velx = -1 + rnd(2)
+      sparks[i].vely = -1 + rnd(2)
+      sparks[i].mass = 0.5 + rnd(2)
+      sparks[i].r = 0.5 + rnd(r)
+      sparks[i].alive = true
+      selected +=1
+      if selected == particles then
+      break end
+    end
+  end
+end
 
+function explosion_update()
+  for i=1,#sparks do
+    if sparks[i].alive then
+      sparks[i].x += sparks[i].velx / sparks[i].mass
+      sparks[i].y += sparks[i].vely / sparks[i].mass
+      sparks[i].r -= 0.1
+      if sparks[i].r < 0.1 then
+        sparks[i].alive = false
+      end
+    end
+  end
+end
+
+function draw_explosion()
+  for i=1,#sparks do
+    if sparks[i].alive then
+      circfill(
+        sparks[i].x,
+        sparks[i].y,
+        sparks[i].r,
+        7
+      )
+    end
+  end
+end
+
+function player_dead()
+  game_state = "dead"
+  if not hit then
+    explosion(player.x,player.y+8,2,100)
+  end
+  hit = true
+end
 
 
 __gfx__
