@@ -732,7 +732,7 @@ function player_reset()
   player={
     sp=1,--sprite du personnage
     x=9,--position x initiale
-    y=430,--position y initiale
+    y=446,--position y initiale
     w=8,--width la largeur en pixel du perso
     h=16,--height la hauteur en pixel du perso
     flp=false,--flip, faux si vers la droite et vrai si vers la gauche
