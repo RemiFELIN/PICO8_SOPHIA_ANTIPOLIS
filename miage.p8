@@ -473,13 +473,11 @@ function player_update()
     player.running=false
   end
 
-
-
   if game_state == "game" 
   and #dtb_queu==0 
   and player.landed then
     --fire
-    if keys:down(4) and not player.down then
+    if keys:down(4) and not player.down and not player.running then
       fire_projectil(player)
       player.attak = true
     else
