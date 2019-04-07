@@ -48,37 +48,37 @@ end
 
 -- this will add a piece of text to the queu. the queu is processed automatically.
 function dtb_disp(txt,callback)
-local lines={}
-local currline=""
-local curword=""
-local curchar=""
-local upt=function()
-if #curword+#currline>29 then
-add(lines,currline)
-currline=""
-end
-currline=currline..curword
-curword=""
-end
-for i=1,#txt do
-curchar=sub(txt,i,i)
-curword=curword..curchar
-if curchar==" " then
-upt()
-elseif #curword>28 then
-curword=curword.."-"
-upt()
-end
-end
+  local lines={}
+  local currline=""
+  local curword=""
+  local curchar=""
+  local upt=function()
+    if #curword+#currline>29 then
+      add(lines,currline)
+      currline=""
+    end
+    currline=currline..curword
+    curword=""
+  end
+  for i=1,#txt do
+    curchar=sub(txt,i,i)
+    curword=curword..curchar
+    if curchar==" " then
+      upt()
+    elseif #curword>28 then
+      curword=curword.."-"
+      upt()
+    end
+  end
 upt()
 if currline~="" then
-add(lines,currline)
+  add(lines,currline)
 end
 add(dtb_queu,lines)
 if callback==nil then
-callback=0
+  callback=0
 end
-add(dtb_queuf,callback)
+  add(dtb_queuf,callback)
 end
 
 -- functions with an underscore prefix are ment for internal use, don't worry about them.
@@ -97,7 +97,8 @@ for i=1,#dtb_dislines-1 do
 dtb_dislines[i]=dtb_dislines[i+1]
 end
 dtb_dislines[#dtb_dislines]=""
---sfx(2)
+--ajout sfx 'bip bip'
+music(5)
 end
 
 function _dtb_nexttext()
@@ -107,7 +108,8 @@ end
 del(dtb_queuf,dtb_queuf[1])
 del(dtb_queu,dtb_queu[1])
 _dtb_clean()
---sfx(2)
+--ajout sfx 'bip bip'
+music(5)
 end
 
 -- make sure that this function is called each update.
@@ -283,7 +285,7 @@ function _init()
 
   intro_init()
   dtb_init()
-  --music(2)
+  music(2)
 end
 
 -->8
@@ -806,13 +808,13 @@ function intro_init()
   skydeg = 0
 end
 
---Affichage du plot
+--affichage du plot
 function plot()
   rectfill(0,0,127,127,1)
-  print(" adolf hitler, the leader of\n germany nazi party,\n was one of the most powerful\n and notorious dictators of\n the 20th century.\n hitler capitalized on\n economic woes, popular\n discontent and political\n infighting to take absolute\n power in germany beginning\n in 1933. germany invasion of\n poland in 1939 led to the\n outbreak of World War ii,\n and by 1941 nazi forces had\n occupied much of Europe.\n ",8,16,7)
+  print(" et si la miage devenait\n ...\n\n votre pire cauchemar !!! ",8,16,7)
 end
 
---Equivalent de la fonction sleep
+--equivalent de la fonction sleep
 function wait(a) 
   for i = 1,a do 
     flip() 
@@ -825,6 +827,8 @@ function dialog_menez()
     drawx(menez.x ,menez.y - 8)
   end
   if start_bulle then
+    -- temp ! je vais faire un fx special pour les rencontres avec les penjis
+    music(5)
     dtb_disp("buffa:hello menez.")
     dtb_disp("menez:salut mich,il y a des checkpoints maintenant, passe a cote d'une pancarte et sucuide toi tu vas voir.")
     dtb_disp("buffa:peut etre une autre fois.")
@@ -885,7 +889,8 @@ function player_dead()
   player.alive = false
   if not hit then
     explosion(player.x,player.y+8,2,100)
-    del_acc = 32 -- change pour delai avant restart
+    music(4)
+    del_acc = 65 -- change pour delai avant restart
   end
   hit = true
   
@@ -920,6 +925,9 @@ function player_reset()
     chrono=0 --sert pour animé le press x to play
     hit = false --si buffa a pris un coup
     del_acc = 1000 -- pour creer un delay
+
+    -- on reset la musique 
+    music(2)
 end
 
 function fire_projectil(emeteur)
@@ -1240,13 +1248,17 @@ __sfx__
 011000001f3552635529355243552735522355243551a3551f3552635529355243552735522355243551a3551f3552635529355243552735522355243551a3551f3552635529355243552735522355243551a355
 011000001f0521f0421f0521f0421d0521d0421d0521d0421c0521c0421a0521a0421f0521f04226052260421f0521f0421f0521f0421d0521d0421d0521d0421c0521c0421d0521d0421f0521f0421a0521a042
 011000001f0521f0421f0521f0421d0521d0421d0521d0421c0521c0421a0521a0421f0521f04226052260421f0521f0421f0521f0421d0521d0421d0521d0421f0521f0421d0521d0421c0521c0421a0521a042
+011000001d7501d7501c7501c7501a7501a75019750167501575015750157501575015750157501575015750187001870018700187001870018700187000c7000c7000c7000c7000c7000c7000c7000070000700
+011000000000000000000000000000000000000000000000097220972209722097220972209722097220972200002000000000000000000000000000000000000000000000000000000000000000000000000000
+011000000000000000000000000000000000000000000000045220452204522045220452204522045220452200000000000000000000000000000000000000000000000000000000000000000000000000000000
+010800001c0441c0351c0441c0351c0441c0351c0441c035000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 __music__
 02 00014344
 42 02444444
 41 03744444
 42 04444474
-44 44444444
-44 44444444
+44 05060744
+44 08444444
 44 44444444
 44 44444444
 44 44444444
