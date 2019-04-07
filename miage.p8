@@ -181,8 +181,8 @@ function _init()
     sp=1,--sprite du personnage
     x=9,--position x initiale
     y=430,--position y initiale
-    w=8,--width la largeur en pixel du perso
-    h=16,--height la hauteur en pixel du perso
+    w=1,--width la largeur en pixel du perso
+    h=2,--height la hauteur en pixel du perso
     flp=false,--flip, faux si vers la droite et vrai si vers la gauche
     dx=0,--delta x, pour la vitesse de deplacement
     dy=0,--delta y, pour la vitesse de saut/chute
@@ -276,6 +276,8 @@ function _init()
   spnum = 0
   bob = false -- technique roumaine pour contourner le probleme avec l'animation de la guitare (ne pas prendre exemple)
   guit_found = false --si buffa a trouver la guitare
+  tmp = 0
+  reattak = true
 
 
   --map limits
@@ -285,7 +287,7 @@ function _init()
 
   intro_init()
   dtb_init()
-  music(2)
+  --music(2)
 end
 
 -->8
@@ -309,7 +311,11 @@ function _update()
 
   if game_state == "game" and player.alive then
     player_update()
-    player_animate()
+    if guit_found then
+      player_guit_animate()
+    else
+      player_animate()
+    end
     frog_update()
     frog_animate()
     dtb_update()
@@ -321,7 +327,7 @@ function _update()
       checkpoint_animate(checkpoint_number)
     end
     --simple camera
-    cam_x=player.x-64+(player.w/2)
+    cam_x=player.x-64+(4)
     if cam_x<map_start then
       cam_x=map_start
     end
@@ -329,7 +335,7 @@ function _update()
       cam_x=mapx_end-128
     end
 
-    cam_y=player.y-64+(player.h/2)
+    cam_y=player.y-64+(player.h*4)
     if cam_y<map_start then
       cam_y=map_start
     end
@@ -389,7 +395,7 @@ function _draw()
     spr(menez.sp,menez.x,menez.y,1,2,menez.flp)
     spr(frog.sp,frog.x,frog.y,2,2,frog.flp)
     if player.alive then
-      spr(player.sp,player.x,player.y,1,2,player.flp)
+      spr(player.sp,player.x,player.y,player.w,2,player.flp)
       for projectil in all(projectils) do
         spr(projectil.sp,projectil.x,projectil.y,1,1,projectil.flp)
       end
@@ -411,7 +417,7 @@ function collide_map(obj,aim,flag)
   --aim = left,right,up,down
 
   local x=obj.x  local y=obj.y
-  local w=obj.w  local h=obj.h
+  local w=obj.w*8  local h=obj.h*8
 
   local x1=0	 local y1=0
   local x2=0  local y2=0
@@ -495,7 +501,7 @@ function player_update()
   and #dtb_queu==0 
   and player.landed then
     --fire
-    if keys:down(4) and not player.down and not player.running and guit_found then
+    if keys:down(4) and not player.down and not player.running and guit_found and reattak then
       fire_projectil(player)
       player.attak = true
     else
@@ -527,7 +533,7 @@ function player_update()
     player.landed=true
     player.falling=false
     player.dy=0
-    player.y-=((player.y+player.h+1)%8)-1
+    player.y-=((player.y+player.h*8+1)%8)-1
   end
   elseif player.dy<0 then
     player.jumping=true
@@ -536,8 +542,9 @@ function player_update()
     end
   end
 
-  if collide_npc(player,guitare,8) then
+  if collide_npc(player,guitare,8) and not guit_found then
     guit_found = true
+    player.sp = 34
   end
 
   --check collision left and right
@@ -593,10 +600,10 @@ function player_update()
   if player.x<map_start then
     player.x=map_start
   end
-  if player.x>mapx_end-player.w then
-    player.x=mapx_end-player.w
+  if player.x>mapx_end-player.w*8 then
+    player.x=mapx_end-player.w*8
   end
-  if player.y> mapy_end-player.h/2 then
+  if player.y> mapy_end-player.h*4 then
     player_dead()
   end
   if player.running or player.jumping or player.falling then waited = false end
@@ -667,10 +674,6 @@ function player_animate()
   elseif player.down then
     player.sp = 8
     player.anim=time()
-  elseif player.attak then
-    player.anim=time()
-    player.sp = 33
-    bob = true
   else --player idle
     if time() - player.anim>3 or waited then
       waited = true
@@ -682,9 +685,50 @@ function player_animate()
         end
       end
     else
-      if not bob or time()-player.anim>.2 then
-        player.sp = 2
-        bob = false
+      player.sp = 2
+    end
+  end
+end
+
+function player_guit_animate()
+
+  if player.attak then
+    player.anim=time()
+    waited = false
+    tmp=time()
+    player.sp =37
+    player.w = 2
+    reattak = false
+  end
+  if time()-tmp>.2 or btn(0) or btn(1) or btn(2) or btn(3) then  
+    player.w = 1
+    reattak = true
+    if player.jumping then
+      player.sp=6
+    elseif player.falling then
+      player.sp=7
+    elseif player.down then
+      player.sp=8
+    elseif player.running then
+      if time()-player.anim>.1 then
+        player.anim=time()
+        player.sp+=1
+        if player.sp>36 then
+          player.sp=34
+        end
+      end
+    else --player idle
+      if time() - player.anim>3 or waited then
+        waited = true
+        if time()-player.anim>.3 then
+          player.anim=time()
+          player.sp+=1
+          if player.sp>33 then
+            player.sp=32
+          end
+        end
+      else
+          player.sp =34
       end
     end
   end
@@ -902,8 +946,8 @@ function player_reset()
     sp=1,--sprite du personnage
     x=checkpointx,--position x initiale
     y=checkpointy-32,--position y initiale
-    w=8,--width la largeur en pixel du perso
-    h=16,--height la hauteur en pixel du perso
+    w=1,--width la largeur en pixel du perso
+    h=2,--height la hauteur en pixel du perso
     flp=false,--flip, faux si vers la droite et vrai si vers la gauche
     dx=0,--delta x, pour la vitesse de deplacement
     dy=0,--delta y, pour la vitesse de saut/chute
