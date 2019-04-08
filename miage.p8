@@ -181,8 +181,8 @@ function _init()
     sp=1,--sprite du personnage
     x=9,--position x initiale
     y=430,--position y initiale
-    w=1,--width la largeur en pixel du perso
-    h=2,--height la hauteur en pixel du perso
+    w=8,--width la largeur en pixel du perso
+    h=16,--height la hauteur en pixel du perso
     flp=false,--flip, faux si vers la droite et vrai si vers la gauche
     dx=0,--delta x, pour la vitesse de deplacement
     dy=0,--delta y, pour la vitesse de saut/chute
@@ -203,9 +203,11 @@ function _init()
     }
 
   menez={  
-  sp=9,
+  sp=32,
   x=264, --position initiale
   y=480,
+  w=8,
+  h=8,
   flp=true -- vers la gauche
   }
   checkpoint={}
@@ -213,6 +215,8 @@ function _init()
     sp=112,
     x=240, --position initiale
     y=488,
+    h=8,
+    w=8,
     flp=false, -- vers la gauche
     anim = 0,
     }
@@ -221,16 +225,18 @@ function _init()
     sp=112,
     x=432, --position initiale
     y=480,
+    h=8,
+    w=8,
     flp=false, -- vers la gauche
     anim = 0,
     }
   )
-  frog={
-  sp=10,
+  droid={
+  sp=33,
   x=110,--position x initiale
   y=480,--position y initiale
-  w=8,--width la largeur en pixel du perso
-  h=8,--height la hauteur en pixel du perso
+  w=16,--width la largeur en pixel du perso
+  h=16,--height la hauteur en pixel du perso
   flp=false,--flip, faux si vers la droite et vrai si vers la gauche
   dx=0,--delta x, pour la vitesse de deplacement
   max_dx=0.7,--vitesse max
@@ -238,6 +244,22 @@ function _init()
   anim=0,--animation , pour regler le temps entre chaque frame
   zonex1 = 0, --zone ou il vagabonde entre zonex1 et zonex2
   zonex2 = 120,
+  id = 0
+  }
+  droid_volant={
+    sp=42,
+    x=180,--position x initiale
+    y=432,--position y initiale
+    w=8,--width la largeur en pixel du perso
+    h=8,--height la hauteur en pixel du perso
+    flp=false,--flip, faux si vers la droite et vrai si vers la gauche
+    dx=0,--delta x, pour la vitesse de deplacement
+    max_dx=0.7,--vitesse max
+    acc=0.5,--acceleration, marche de pair avec delta x
+    anim=0,--animation , pour regler le temps entre chaque frame
+    zonex1 = 180, --zone ou il vagabonde entre zonex1 et zonex2
+    zonex2 = 300,
+    id = 0
   }
   sparks={}
   for i=1,200 do
@@ -316,8 +338,10 @@ function _update()
     else
       player_animate()
     end
-    frog_update()
-    frog_animate()
+    droid_update()
+    droid_animate()
+    droid_volant_update()
+    droid_volant_animate()
     dtb_update()
     projectils_update()
     if not guit_found then
@@ -335,7 +359,7 @@ function _update()
       cam_x=mapx_end-128
     end
 
-    cam_y=player.y-64+(player.h*4)
+    cam_y=player.y-64+(player.h/2)
     if cam_y<map_start then
       cam_y=map_start
     end
@@ -391,11 +415,11 @@ function _draw()
     --Dessine les checkpoints
     spr(checkpoint[1].sp,checkpoint[1].x,checkpoint[1].y,1,1,checkpoint[1].flp)
     spr(checkpoint[2].sp,checkpoint[2].x,checkpoint[2].y,1,1,checkpoint[2].flp)
-
     spr(menez.sp,menez.x,menez.y,1,2,menez.flp)
-    spr(frog.sp,frog.x,frog.y,2,2,frog.flp)
+    spr(droid.sp,droid.x,droid.y,2,2,droid.flp)
+    spr(droid_volant.sp,droid_volant.x,droid_volant.y,1,1,droid_volant.flp)
     if player.alive then
-      spr(player.sp,player.x,player.y,player.w,2,player.flp)
+      spr(player.sp,player.x,player.y,player.w/8,2,player.flp)
       for projectil in all(projectils) do
         spr(projectil.sp,projectil.x,projectil.y,1,1,projectil.flp)
       end
@@ -417,7 +441,7 @@ function collide_map(obj,aim,flag)
   --aim = left,right,up,down
 
   local x=obj.x  local y=obj.y
-  local w=obj.w*8  local h=obj.h*8
+  local w=obj.w  local h=obj.h
 
   local x1=0	 local y1=0
   local x2=0  local y2=0
@@ -454,12 +478,10 @@ end
 
 end
 
-function collide_npc(player,npc,distance)
-  local d = distance
-  local p = player
-  local n = npc
-  if(n.x - d < p.x and p.x < n.x + d) then -- test si le player est dans le champ du npc dans l'axe x
-    if(n.y - d < p.y and p.y < n.y + d) then -- test si le player est dans le champ du npc dans l'axe y
+function collide_npc(p,n,distance)
+  local d = distance or 0
+  if(n.x - d <= p.x+player.w and p.x <= n.x+n.w + d) then -- test si le player est dans le champ du npc dans l'axe x
+    if(n.y - d <= p.y+player.h  and p.y <= n.y+n.h + d) then -- test si le player est dans le champ du npc dans l'axe y
       return true
     end
   end
@@ -533,7 +555,7 @@ function player_update()
     player.landed=true
     player.falling=false
     player.dy=0
-    player.y-=((player.y+player.h*8+1)%8)-1
+    player.y-=((player.y+player.h+1)%8)-1
   end
   elseif player.dy<0 then
     player.jumping=true
@@ -572,7 +594,7 @@ function player_update()
    interaction = false
   end
 
-  if collide_npc(player,frog,9)  then
+  if collide_npc(player,droid,-2) or collide_npc(player,droid_volant,0) then
     player_dead()
   end
 
@@ -600,50 +622,87 @@ function player_update()
   if player.x<map_start then
     player.x=map_start
   end
-  if player.x>mapx_end-player.w*8 then
-    player.x=mapx_end-player.w*8
+  if player.x>mapx_end-player.w then
+    player.x=mapx_end-player.w
   end
-  if player.y> mapy_end-player.h*4 then
+  if player.y> mapy_end-player.h/2 then
     player_dead()
   end
   if player.running or player.jumping or player.falling then waited = false end
 end
 
-function frog_update()
+function droid_update()
 
-  frog.dx*=friction
+  droid.dx*=friction
   --movement
   if game_state == "game" then
-    if frog.flp then
-      frog.dx-=frog.acc
-      frog.running=true
+    if droid.flp then
+      droid.dx-=droid.acc
+      droid.running=true
     else
-      frog.dx+=frog.acc
-      frog.running=true
+      droid.dx+=droid.acc
+      droid.running=true
     end
   end
 
-  if frog.x < frog.zonex1 then
-    frog.flp = false
+  if droid.x < droid.zonex1 then
+    droid.flp = false
   end
-  if frog.x > frog.zonex2 then
-    frog.flp = true
+  if droid.x > droid.zonex2 then
+    droid.flp = true
   end
 
   --check collision left and right
-  if frog.dx<0 then
-    frog.dx=limit_speed(frog.dx,frog.max_dx)
-    if collide_map(frog,"left",1) then
-      frog.dx=0
+  if droid.dx<0 then
+    droid.dx=limit_speed(droid.dx,droid.max_dx)
+    if collide_map(droid,"left",1) then
+      droid.dx=0
     end
-  elseif frog.dx>0 then
-    frog.dx=limit_speed(frog.dx,frog.max_dx)
-    if collide_map(frog,"right",1) then
-      frog.dx=0
+  elseif droid.dx>0 then
+    droid.dx=limit_speed(droid.dx,droid.max_dx)
+    if collide_map(droid,"right",1) then
+      droid.dx=0
     end
   end
 
-  frog.x+=frog.dx
+  droid.x+=droid.dx
+end
+
+function droid_volant_update()
+
+  droid_volant.dx*=friction
+  --movement
+  if game_state == "game" then
+    if droid_volant.flp then
+      droid_volant.dx-=droid_volant.acc
+      droid_volant.running=true
+    else
+      droid_volant.dx+=droid_volant.acc
+      droid_volant.running=true
+    end
+  end
+
+  if droid_volant.x < droid_volant.zonex1 then
+    droid_volant.flp = false
+  end
+  if droid_volant.x > droid_volant.zonex2 then
+    droid_volant.flp = true
+  end
+
+  --check collision left and right
+  if droid_volant.dx<0 then
+    droid_volant.dx=limit_speed(droid_volant.dx,droid_volant.max_dx)
+    if collide_map(droid_volant,"left",1) then
+      droid_volant.dx=0
+    end
+  elseif droid_volant.dx>0 then
+    droid_volant.dx=limit_speed(droid_volant.dx,droid_volant.max_dx)
+    if collide_map(droid_volant,"right",1) then
+      droid_volant.dx=0
+    end
+  end
+
+  droid_volant.x+=droid_volant.dx
 end
 
 function guitare_animate() 
@@ -696,12 +755,12 @@ function player_guit_animate()
     player.anim=time()
     waited = false
     tmp=time()
-    player.sp =37
-    player.w = 2
+    player.sp =14
+    player.w = 16
     reattak = false
   end
   if time()-tmp>.2 or btn(0) or btn(1) or btn(2) or btn(3) then  
-    player.w = 1
+    player.w = 8
     reattak = true
     if player.jumping then
       player.sp=6
@@ -713,8 +772,8 @@ function player_guit_animate()
       if time()-player.anim>.1 then
         player.anim=time()
         player.sp+=1
-        if player.sp>36 then
-          player.sp=34
+        if player.sp>13 then
+          player.sp=11
         end
       end
     else --player idle
@@ -723,24 +782,36 @@ function player_guit_animate()
         if time()-player.anim>.3 then
           player.anim=time()
           player.sp+=1
-          if player.sp>33 then
-            player.sp=32
+          if player.sp>10 then
+            player.sp=9
           end
         end
       else
-          player.sp =34
+          player.sp =11
       end
     end
   end
 end
 
-function frog_animate()
-  if frog.running then
-  if time()-frog.anim>.2 then
-    frog.anim=time()
-    frog.sp+=2
-    if frog.sp>14 then
-      frog.sp=10
+function droid_animate()
+  if droid.running then
+  if time()-droid.anim>.2 then
+    droid.anim=time()
+    droid.sp+=2
+    if droid.sp>35 then
+      droid.sp=33
+    end
+  end
+  end
+end
+
+function droid_volant_animate()
+  if droid_volant.running then
+  if time()-droid_volant.anim>.2 then
+    droid_volant.anim=time()
+    droid_volant.sp+=1
+    if droid_volant.sp>43 then
+      droid_volant.sp=42
     end
   end
   end
@@ -781,13 +852,52 @@ function projectils_update()
     if projectil.x<map_start 
     or projectil.x>mapx_end 
     or collide_map(projectil,"right",1)
-    or collide_map(projectil,"left",1)then
+    or collide_map(projectil,"left",1)
+    or collide_npc(projectil,droid,0) 
+    or collide_npc(projectil,droid_volant,0)then
       del(projectils,projectil)
       explosion(projectil.x,projectil.y,2,100,true)
+      if collide_npc(projectil,droid,0) then
+        droid.id +=1
+        explosion(droid.x,droid.y,5,100,true)
+        relocate_droid(droid.id)
+      end
+      if collide_npc(projectil,droid_volant,0) then
+        droid_volant.id +=1
+        explosion(droid_volant.x,droid_volant.y,3,100,true)
+        relocate_droid_volant(droid_volant.id)
+      end
     end
   end
 end
 
+function relocate_droid(x)
+  if x == 1 then
+    droid.x = 54*8
+    droid.y = 59*8
+    droid.zonex1 = 52*8
+    droid.zonex2 = 56*8
+  elseif x == 2 then 
+    droid.x = 54*8
+    droid.y = 29*8
+    droid.zonex1 = 52*8
+    droid.zonex2 = 56*8
+  end
+end
+
+function relocate_droid_volant(x)
+  if x == 1 then
+    droid_volant.x = 54*8
+    droid_volant.y = 29*8
+    droid_volant.zonex1 = 52*8
+    droid_volant.zonex2 = 56*8
+  elseif x == 2 then 
+    droid_volant.x = 54*8
+    droid_volant.y = 29*8
+    droid_volant.zonex1 = 52*8
+    droid_volant.zonex2 = 56*8
+  end
+end
 
 function limit_speed(num,maximum)
 return mid(-maximum,num,maximum)
@@ -943,11 +1053,10 @@ end
 function player_reset()
 
   player={
-    sp=1,--sprite du personnage
     x=checkpointx,--position x initiale
     y=checkpointy-32,--position y initiale
-    w=1,--width la largeur en pixel du perso
-    h=2,--height la hauteur en pixel du perso
+    w=8,--width la largeur en pixel du perso
+    h=16,--height la hauteur en pixel du perso
     flp=false,--flip, faux si vers la droite et vrai si vers la gauche
     dx=0,--delta x, pour la vitesse de deplacement
     dy=0,--delta y, pour la vitesse de saut/chute
@@ -964,12 +1073,10 @@ function player_reset()
     alive = true,
     down = false,
     attak = false,
-    
     }
     chrono=0 --sert pour animé le press x to play
     hit = false --si buffa a pris un coup
     del_acc = 1000 -- pour creer un delay
-
     -- on reset la musique 
     music(6)
 end
@@ -992,38 +1099,38 @@ end
 
 
 __gfx__
-00000000070000000000000000000000000000000000000000000000000000000000000006666660000000000000000000000000000000000000000000000000
-079777000770000000797770007977700079777000797770079777f00079ff70000000006ffffff6000060000006000000000000000000000000000060060000
-0797ff007707977700797ff000797ff000797ff000797ff00797ff80007988f0000000006f1ff1f6000636000063600000003000000300000000000636636000
-099f1f00000797ff0099f1f00099f1f00099f1f00099f1f0099f1880009988f000000000ffffffff000063666636000000000300003000000000006366360000
-099fff0000099f1f0099fff00099fff00099fff00099fff0099f8880009988f0000000000ff11ff0000006333360000000000033330000000000063333600000
-00ff000000099fff000ff000000ff000000ff000000ff00000f88800000f88000000000000ffff00000063733736000000000373373000000000006373360000
-0088000000088f000008800000088000000880000008800000888000000888000000000000055000000633333333600000003333333300000000000633336000
-08888000008888000088880000888800008888000088880008888000008888000000000055555555000066666666000000000000000000000000000066660000
-08888000088880000088880000888800008888000088880008888000008888000079777055555555066033333333066000003333333300006660333333330660
-08888000088880000088880008888880088888800888888088888000008888000099f1f0f555555f633633333333633603303333333303303336333333336336
-08ff800008ff8000008ff8000ff888f00f888ff00ff888f0f8888110008888000099fff0f449944f633633333333633603303333333303303336333333336336
-0888800008888000008888000088880000888800008888000888811000888800088ff800f110011f633633333333633603303333333303306660333333336336
-01111000011110000011110001101100001101100110110001100110001111008888888801100110066033333333066000003333333300000000333333330660
-0111100001111000001111000110110000110110011011000110011000111100ff1111ff0ff00ff0000033333333000000003333333300000000333333330000
-011144000111100000111100011011000011011001101100011004400011110011100111f4f0f4f0000063366336000000000330033000000000633663360000
-04440000044440000044440004404400004404400440440004400000004444004400004444404440000063300336000000000330033000000000633003360000
-00000000070000000000000000000000000000000700000000777000000000000000000000000070000000000000000000000000000000000000000000000000
-00797770077000000079777000797770007977700770000000000700000000000900007009000077600000060000000000000000000000000000000000000000
-00797ff07707977700797ff000797ff000797ff07700000007700070000000009990007799900770b600006bb000000b00000000000000000000000000000000
-0099f1f0000797ff0099f1f00099f1f00099f1f000079777000700070000000009590770095900006b6666b60b0000b000000000000000000000000000000000
-0099fff000099f1f0099fff00099fff00099fff0000797ff0700700700000000079590000095900006bbbb6000bbbb0000000000000000000000000000000000
-090ff00009099fff090ff000090ff000090ff00000099f1f007007070000000007795999070959996b7bb7b60b7bb7b000000000000000000000000000000000
-9998800099988f0099988000999880009998800009099fff00070700000000007700955907709559bbbbbbbbbbbbbbbb00000000000000000000000000000000
-09598800095988000959880009598800095988009990ff0000000000000000000000999977009999000000000000000000000000000000000000000000000000
-00f59ff000f5988000f59ff000f5988000f59ff0095988000000000000000000bbcccccccccccccc000000000000000000000000000000000000000000000000
-008f5999008f5ff9008f5999008f5ff9008f599900f5988888f0000000000000bbbbcccccccccccc000000000000000000000000000000000000000000000000
-0088955900889559008895590088955900889559008f599988f0000000000000bbbbbccccccccccc000000000000000000000000000000000000000000000000
-0088899900888999008889990088899900888999008895590000000000000000b3bbbbcccccccccc000000000000000000000000000000000000000000000000
-001111000011110000111100011011000011011000888999000000000000000033bbbbbccccccccc000000000000000000000000000000000000000000000000
-00111100001111000011110001101100001101100111111000000000000000003bbbbbbbbccccccc000000000000000000000000000000000000000000000000
-0011144000111100001111000110110000110110110000110000000000000000bbbbbbbbbbcccccc000000000000000000000000000000000000000000000000
-0044400000444400004444000440440000440440440000440000000000000000bbbbbbbbbbcccccc000000000000000000000000000000000000000000000000
+00000000070000000000000000000000000000000000000000000000000000000000000000000000070000000000000000000000000000000700000000777000
+079777000770000000797770007977700079777000797770079777f00079ff700000000000797770077000000079777000797770007977700770000000000700
+0797ff007707977700797ff000797ff000797ff000797ff00797ff80007988f00000000000797ff07707977700797ff000797ff000797ff07700000007700070
+099f1f00000797ff0099f1f00099f1f00099f1f00099f1f0099f1880009988f0000000000099f1f0000797ff0099f1f00099f1f00099f1f00007977700070007
+099fff0000099f1f0099fff00099fff00099fff00099fff0099f8880009988f0000000000099fff000099f1f0099fff00099fff00099fff0000797ff07007007
+00ff000000099fff000ff000000ff000000ff000000ff00000f88800000f880000000000090ff00009099fff090ff000090ff000090ff00000099f1f00700707
+0088000000088f00000880000008800000088000000880000088800000088800000000009998800099988f0099988000999880009998800009099fff00070700
+08888000008888000088880000888800008888000088880008888000008888000000000009598800095988000959880009598800095988009990ff0000000000
+08888000088880000088880000888800008888000088880008888000008888000079777000f59ff000f5988000f59ff000f5988000f59ff00959880000000000
+08888000088880000088880008888880088888800888888088888000008888000099f1f0008f5999008f5ff9008f5999008f5ff9008f599900f5988888f00000
+08ff800008ff8000008ff8000ff888f00f888ff00ff888f0f8888110008888000099fff00088955900889559008895590088955900889559008f599988f00000
+0888800008888000008888000088880000888800008888000888811000888800088ff80000888999008889990088899900888999008889990088955900000000
+01111000011110000011110001101100001101100110110001100110001111008888888800111100001111000011110001101100001101100088899900000000
+0111100001111000001111000110110000110110011011000110011000111100ff1111ff00111100001111000011110001101100001101100111111000000000
+01114400011110000011110001101100001101100110110001100440001111001110011100111440001111000011110001101100001101101100001100000000
+04440000044440000044440004404400004404400440440004400000004444004400004400444000004444000044440004404400004404404400004400000000
+06666660000000000000000000000000000000000000000000000000000000000000000000000070000000000000000000000000000000000000000000000000
+6ffffff6000060000006000000000000000000000000000060060000000000000900007009000077600000060000000000000000000000000000000000000000
+6f1ff1f6000636000063600000003000000300000000000636636000000000009990007799900770b600006bb000000b00000000000000000000000000000000
+ffffffff0000636666360000000003000030000000000063663600000000000009590770095900006b6666b60b0000b000000000000000000000000000000000
+0ff11ff000000633336000000000003333000000000006333360000000000000079590000095900006bbbb6000bbbb0000000000000000000000000000000000
+00ffff000000637337360000000003733730000000000063733600000000000007795999070959996b7bb7b60b7bb7b000000000000000000000000000000000
+00055000000633333333600000003333333300000000000633336000000000007700955907709559bbbbbbbbbbbbbbbb00000000000000000000000000000000
+55555555000066666666000000000000000000000000000066660000000000000000999977009999000000000000000000000000000000000000000000000000
+5555555506603333333306600000333333330000666033333333066000000000bbcccccccccccccc000000000000000000000000000000000000000000000000
+f555555f63363333333363360330333333330330333633333333633600000000bbbbcccccccccccc000000000000000000000000000000000000000000000000
+f449944f63363333333363360330333333330330333633333333633600000000bbbbbccccccccccc000000000000000000000000000000000000000000000000
+f110011f63363333333363360330333333330330666033333333633600000000b3bbbbcccccccccc000000000000000000000000000000000000000000000000
+011001100660333333330660000033333333000000003333333306600000000033bbbbbccccccccc000000000000000000000000000000000000000000000000
+0ff00ff0000033333333000000003333333300000000333333330000000000003bbbbbbbbccccccc000000000000000000000000000000000000000000000000
+f4f0f4f000006336633600000000033003300000000063366336000000000000bbbbbbbbbbcccccc000000000000000000000000000000000000000000000000
+4440444000006330033600000000033003300000000063300336000000000000bbbbbbbbbbcccccc000000000000000000000000000000000000000000000000
 bbbbbbbb00000000000000cccccccccccccccccc000000000000000000000000bbbbbbbbbbbccccc000000000000000000000000000000000000000000000000
 bbbbb3b3333333333333330cccc77ccccccccccc000000000000000000000000bbbbbbbbb3bbcccc000000000000000000000000000000000000000000000000
 3b3bb333333333333333330ccc7777cccccccccc000000000000000000000000bb3bb3bbb3bbbccc000000077777777777777700000000007777770000000000
@@ -1336,4 +1443,3 @@ __music__
 44 44444444
 44 44444444
 44 44444444
-
