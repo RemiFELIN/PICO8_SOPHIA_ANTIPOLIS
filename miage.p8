@@ -92,66 +92,66 @@ dtb_ltime=0
 end
 
 function _dtb_nextline()
-dtb_curline+=1
-for i=1,#dtb_dislines-1 do
-dtb_dislines[i]=dtb_dislines[i+1]
-end
-dtb_dislines[#dtb_dislines]=""
---ajout sfx 'bip bip'
-music(5)
+  dtb_curline+=1
+  for i=1,#dtb_dislines-1 do
+    dtb_dislines[i]=dtb_dislines[i+1]
+  end
+  dtb_dislines[#dtb_dislines]=""
+  --ajout sfx 'bip bip'
+  --sfx(8)
 end
 
 function _dtb_nexttext()
-if dtb_queuf[1]~=0 then -- ~= ===> not egal
-dtb_queuf[1]()
-end
-del(dtb_queuf,dtb_queuf[1])
-del(dtb_queu,dtb_queu[1])
-_dtb_clean()
---ajout sfx 'bip bip'
-music(5)
+  if dtb_queuf[1]~=0 then -- ~= ===> not egal
+   dtb_queuf[1]()
+  end
+  del(dtb_queuf,dtb_queuf[1])
+  del(dtb_queu,dtb_queu[1])
+  _dtb_clean()
+  --ajout sfx 'bip bip'
+  --sfx(8)
 end
 
 -- make sure that this function is called each update.
 function dtb_update()
-if #dtb_queu>0 then
-if dtb_curline==0 then
-dtb_curline=1
-end
-local dislineslength=#dtb_dislines
-local curlines=dtb_queu[1]
-local curlinelength=#dtb_dislines[dislineslength]
-local complete=curlinelength>=#curlines[dtb_curline]
-if complete and dtb_curline>=#curlines then
-if keys:down(5) then
-_dtb_nexttext()
-return
-end
-elseif dtb_curline>0 then
-dtb_ltime-=1
-if not complete then
-if dtb_ltime<=0 then
-  local curchari=curlinelength+1
-  local curchar=sub(curlines[dtb_curline],curchari,curchari)
-  dtb_ltime=1
-  if curchar~=" " then
-    --sfx(0)
+  if #dtb_queu>0 then
+  if dtb_curline==0 then
+  dtb_curline=1
   end
-  if curchar=="." then
-    dtb_ltime=6
+  local dislineslength=#dtb_dislines
+  local curlines=dtb_queu[1]
+  local curlinelength=#dtb_dislines[dislineslength]
+  local complete=curlinelength>=#curlines[dtb_curline]
+  if complete and dtb_curline>=#curlines then
+  if keys:down(5) then
+  _dtb_nexttext()
+  return
   end
-  dtb_dislines[dislineslength]=dtb_dislines[dislineslength]..curchar
-end
-if keys:down(5) then
-  dtb_dislines[dislineslength]=curlines[dtb_curline]
-end
-else
-if(keys:down(5)) then
-  _dtb_nextline()
-end
-end
-end
-end
+  elseif dtb_curline>0 then
+  dtb_ltime-=1
+  if not complete then
+  if dtb_ltime<=0 then
+    local curchari=curlinelength+1
+    local curchar=sub(curlines[dtb_curline],curchari,curchari)
+    dtb_ltime=1
+    if curchar~=" " then
+      sfx(8)
+    end
+    if curchar=="." then
+      dtb_ltime=6
+    end
+    dtb_dislines[dislineslength]=dtb_dislines[dislineslength]..curchar
+  end
+  if keys:down(5) then
+    dtb_dislines[dislineslength]=curlines[dtb_curline]
+  end
+  else
+  if(keys:down(5)) then
+    _dtb_nextline()
+  end
+  end
+  end
+  end
 end
 
 -- make sure to call this function everytime you draw.
@@ -239,6 +239,7 @@ function _init()
   h=16,--height la hauteur en pixel du perso
   flp=false,--flip, faux si vers la droite et vrai si vers la gauche
   dx=0,--delta x, pour la vitesse de deplacement
+  
   max_dx=0.7,--vitesse max
   acc=0.5,--acceleration, marche de pair avec delta x
   anim=0,--animation , pour regler le temps entre chaque frame
@@ -248,17 +249,21 @@ function _init()
   }
   droid_volant={
     sp=42,
+    inity = 440,
     x=180,--position x initiale
-    y=432,--position y initiale
+    y=440,--position y initiale
     w=8,--width la largeur en pixel du perso
     h=8,--height la hauteur en pixel du perso
     flp=false,--flip, faux si vers la droite et vrai si vers la gauche
     dx=0,--delta x, pour la vitesse de deplacement
+    dy=1,--delta y, pour la vitesse de saut/chute
     max_dx=0.7,--vitesse max
     acc=0.5,--acceleration, marche de pair avec delta x
     anim=0,--animation , pour regler le temps entre chaque frame
-    zonex1 = 180, --zone ou il vagabonde entre zonex1 et zonex2
-    zonex2 = 300,
+    zonex1 = 140, --zone ou il vagabonde entre zonex1 et zonex2
+    zonex2 = 240,
+    zoney1 = 425, --zone ou il vagabonde entre zoney1 et zoney2
+    zoney2 = 455,
     id = 0
   }
   sparks={}
@@ -415,9 +420,12 @@ function _draw()
     --Dessine les checkpoints
     spr(checkpoint[1].sp,checkpoint[1].x,checkpoint[1].y,1,1,checkpoint[1].flp)
     spr(checkpoint[2].sp,checkpoint[2].x,checkpoint[2].y,1,1,checkpoint[2].flp)
+
+    --Dessine les npc
     spr(menez.sp,menez.x,menez.y,1,2,menez.flp)
     spr(droid.sp,droid.x,droid.y,2,2,droid.flp)
     spr(droid_volant.sp,droid_volant.x,droid_volant.y,1,1,droid_volant.flp)
+
     if player.alive then
       spr(player.sp,player.x,player.y,player.w/8,2,player.flp)
       for projectil in all(projectils) do
@@ -479,13 +487,26 @@ end
 end
 
 function collide_npc(p,n,distance)
+
   local d = distance or 0
-  if(n.x - d <= p.x+player.w and p.x <= n.x+n.w + d) then -- test si le player est dans le champ du npc dans l'axe x
-    if(n.y - d <= p.y+player.h  and p.y <= n.y+n.h + d) then -- test si le player est dans le champ du npc dans l'axe y
-      return true
+
+  if p == player and player.down then
+    if(n.x - d <= p.x+player.w and p.x <= n.x+n.w + d) then -- test si le player est dans le champ du npc dans l'axe x
+      if(n.y - d <= p.y+player.h  and p.y+player.h/2 <= n.y+n.h + d) then -- test si le player est dans la moitié inférieur du champ du npc dans l'axe y
+        return true
+      end
     end
+    return false
+  
+  else
+    if(n.x - d <= p.x+player.w and p.x <= n.x+n.w + d) then -- test si le p est dans le champ du npc dans l'axe x
+      if(n.y - d <= p.y+player.h  and p.y <= n.y+n.h + d) then -- test si le pest dans le champ du npc dans l'axe y
+        return true
+      end
+    end
+    return false
   end
-  return false
+
 end
 
 
@@ -599,7 +620,10 @@ function player_update()
   end
 
   for i=1,#checkpoint do
-    if collide_npc(player,checkpoint[i],9)  then
+    if collide_npc(player,checkpoint[i])  then
+      if droid.id == 0 then
+        relocate_droid()
+      end
       checkpoint_number = i
       checkpointx = checkpoint[i].x
       checkpointy = checkpoint[i].y
@@ -645,7 +669,7 @@ function droid_update()
     end
   end
 
-  if droid.x < droid.zonex1 then
+  if droid.x < droid.zonex1  then
     droid.flp = false
   end
   if droid.x > droid.zonex2 then
@@ -665,6 +689,7 @@ function droid_update()
     end
   end
 
+  
   droid.x+=droid.dx
 end
 
@@ -682,7 +707,8 @@ function droid_volant_update()
     end
   end
 
-  if droid_volant.x < droid_volant.zonex1 then
+
+  if droid_volant.x < droid_volant.zonex1  then
     droid_volant.flp = false
   end
   if droid_volant.x > droid_volant.zonex2 then
@@ -702,6 +728,14 @@ function droid_volant_update()
     end
   end
 
+  if droid_volant.y < droid_volant.zoney1 then
+    droid_volant.dy +=0.1
+  end
+
+  if droid_volant.y > droid_volant.zoney2 then
+    droid_volant.dy -=0.1
+  end
+  droid_volant.y+=droid_volant.dy
   droid_volant.x+=droid_volant.dx
 end
 
@@ -853,31 +887,30 @@ function projectils_update()
     or projectil.x>mapx_end 
     or collide_map(projectil,"right",1)
     or collide_map(projectil,"left",1)
-    or collide_npc(projectil,droid,0) 
-    or collide_npc(projectil,droid_volant,0)then
+    or collide_npc(projectil,droid) 
+    or collide_npc(projectil,droid_volant)then
       del(projectils,projectil)
-      explosion(projectil.x,projectil.y,2,100,true)
-      if collide_npc(projectil,droid,0) then
-        droid.id +=1
+      if collide_npc(projectil,droid) then
         explosion(droid.x,droid.y,5,100,true)
-        relocate_droid(droid.id)
-      end
-      if collide_npc(projectil,droid_volant,0) then
-        droid_volant.id +=1
+        relocate_droid()
+      elseif collide_npc(projectil,droid_volant) then
         explosion(droid_volant.x,droid_volant.y,3,100,true)
-        relocate_droid_volant(droid_volant.id)
+        relocate_droid_volant()
+      else
+        explosion(projectil.x,projectil.y,2,100,true)
       end
     end
   end
 end
 
-function relocate_droid(x)
-  if x == 1 then
+function relocate_droid()
+  droid.id +=1
+  if droid.id == 1 then
     droid.x = 54*8
     droid.y = 59*8
     droid.zonex1 = 52*8
     droid.zonex2 = 56*8
-  elseif x == 2 then 
+  elseif droid.id == 2 then 
     droid.x = 54*8
     droid.y = 29*8
     droid.zonex1 = 52*8
@@ -885,13 +918,14 @@ function relocate_droid(x)
   end
 end
 
-function relocate_droid_volant(x)
-  if x == 1 then
+function relocate_droid_volant()
+  droid_volant.id +=1
+  if droid_volant.id == 1 then
     droid_volant.x = 54*8
     droid_volant.y = 29*8
     droid_volant.zonex1 = 52*8
     droid_volant.zonex2 = 56*8
-  elseif x == 2 then 
+  elseif droid_volant.id == 2 then 
     droid_volant.x = 54*8
     droid_volant.y = 29*8
     droid_volant.zonex1 = 52*8
@@ -981,14 +1015,13 @@ function dialog_menez()
     drawx(menez.x ,menez.y - 8)
   end
   if start_bulle then
-    -- temp ! je vais faire un fx special pour les rencontres avec les penjis
-    music(5)
     dtb_disp("buffa:hello menez.")
     dtb_disp("menez:salut mich,il y a des checkpoints maintenant, passe a cote d'une pancarte et sucuide toi tu vas voir.")
     dtb_disp("buffa:peut etre une autre fois.")
     start_bulle = false
   end
 end
+
 
 function explosion(x,y,r,particles,multi)
   local selected = 0
@@ -1402,7 +1435,7 @@ __sfx__
 011000001d7501d7501c7501c7501a7501a75019750167501575015750157501575015750157501575015750187001870018700187001870018700187000c7000c7000c7000c7000c7000c7000c7000070000700
 011000000000000000000000000000000000000000000000097220972209722097220972209722097220972200002000000000000000000000000000000000000000000000000000000000000000000000000000
 011000000000000000000000000000000000000000000000045220452204522045220452204522045220452200000000000000000000000000000000000000000000000000000000000000000000000000000000
-010800001c0441c0351c0441c0351c0441c0351c0441c035000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
+010800001c0441c0351c0041c0051c0041c0051c0041c005000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 01100000137500c7000c7000c700137500c7000c7000c700137500c7000c7000c700137500c7000c7000c700137500c7000c7000c700137500c7000c7000c700137500c7000c7000c700137500c7000c70015750
 01100000020300000000000000000203000000000000000002030000000000000000020300000000000000000203000000000000000002030000000000000000020300000000000000000203000000000000e030
 011000000200000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
@@ -1443,3 +1476,4 @@ __music__
 44 44444444
 44 44444444
 44 44444444
+
