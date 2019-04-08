@@ -231,25 +231,23 @@ function _init()
     anim = 0,
     }
   )
-  droid={
-  sp=33,
-  x=110,--position x initiale
-  y=480,--position y initiale
-  w=16,--width la largeur en pixel du perso
-  h=16,--height la hauteur en pixel du perso
-  flp=false,--flip, faux si vers la droite et vrai si vers la gauche
-  dx=0,--delta x, pour la vitesse de deplacement
-  
-  max_dx=0.7,--vitesse max
-  acc=0.5,--acceleration, marche de pair avec delta x
-  anim=0,--animation , pour regler le temps entre chaque frame
-  zonex1 = 0, --zone ou il vagabonde entre zonex1 et zonex2
-  zonex2 = 120,
-  id = 0
-  }
-  droid_volant={
-    sp=42,
-    inity = 440,
+  droids = {}
+  add(droids,{
+    sp=33,--droid terrestre
+    x=110,--position x initiale
+    y=480,--position y initiale
+    w=16,--width la largeur en pixel du perso
+    h=16,--height la hauteur en pixel du perso
+    flp=false,--flip, faux si vers la droite et vrai si vers la gauche
+    dx=0,--delta x, pour la vitesse de deplacement
+    max_dx=0.7,--vitesse max
+    acc=0.5,--acceleration, marche de pair avec delta x
+    anim=0,--animation , pour regler le temps entre chaque frame
+    zonex1 = 0, --zone ou il vagabonde entre zonex1 et zonex2
+    zonex2 = 120
+  })
+  add(droids,{
+    sp=42, -- droid volant
     x=180,--position x initiale
     y=440,--position y initiale
     w=8,--width la largeur en pixel du perso
@@ -261,11 +259,27 @@ function _init()
     acc=0.5,--acceleration, marche de pair avec delta x
     anim=0,--animation , pour regler le temps entre chaque frame
     zonex1 = 140, --zone ou il vagabonde entre zonex1 et zonex2
-    zonex2 = 240,
+    zonex2 = 220,
     zoney1 = 425, --zone ou il vagabonde entre zoney1 et zoney2
-    zoney2 = 455,
-    id = 0
-  }
+    zoney2 = 455
+  })
+  add(droids,{
+    sp=42,
+    x=380,--position x initiale
+    y=460,--position y initiale
+    w=8,--width la largeur en pixel du perso
+    h=8,--height la hauteur en pixel du perso
+    flp=false,--flip, faux si vers la droite et vrai si vers la gauche
+    dx=0,--delta x, pour la vitesse de deplacement
+    dy=1,--delta y, pour la vitesse de saut/chute
+    max_dx=0.7,--vitesse max
+    acc=0.5,--acceleration, marche de pair avec delta x
+    anim=0,--animation , pour regler le temps entre chaque frame
+    zonex1 = 240, --zone ou il vagabonde entre zonex1 et zonex2
+    zonex2 = 440,
+    zoney1 = 440, --zone ou il vagabonde entre zoney1 et zoney2
+    zoney2 = 480
+  })
   sparks={}
   for i=1,200 do
     add(sparks,{
@@ -345,8 +359,6 @@ function _update()
     end
     droid_update()
     droid_animate()
-    droid_volant_update()
-    droid_volant_animate()
     dtb_update()
     projectils_update()
     if not guit_found then
@@ -423,8 +435,9 @@ function _draw()
 
     --Dessine les npc
     spr(menez.sp,menez.x,menez.y,1,2,menez.flp)
-    spr(droid.sp,droid.x,droid.y,2,2,droid.flp)
-    spr(droid_volant.sp,droid_volant.x,droid_volant.y,1,1,droid_volant.flp)
+    for droid in all(droids) do
+      spr(droid.sp,droid.x,droid.y,droid.w/8,droid.h/8,droid.flp)
+    end
 
     if player.alive then
       spr(player.sp,player.x,player.y,player.w/8,2,player.flp)
@@ -614,16 +627,14 @@ function player_update()
   else
    interaction = false
   end
-
-  if collide_npc(player,droid,-2) or collide_npc(player,droid_volant,0) then
-    player_dead()
+  for droid in all(droids) do
+    if collide_npc(player,droid) then
+      player_dead()
+    end
   end
 
   for i=1,#checkpoint do
     if collide_npc(player,checkpoint[i])  then
-      if droid.id == 0 then
-        relocate_droid()
-      end
       checkpoint_number = i
       checkpointx = checkpoint[i].x
       checkpointy = checkpoint[i].y
@@ -657,87 +668,55 @@ end
 
 function droid_update()
 
-  droid.dx*=friction
-  --movement
-  if game_state == "game" then
-    if droid.flp then
-      droid.dx-=droid.acc
-      droid.running=true
+  for droid in all(droids) do
+    droid.dx=limit_speed(droid.dx,droid.max_dx)
+    if droid.w == 16 then
+      droid.dx*=friction
+      --movement
+      if game_state == "game" then
+        if droid.flp then
+          droid.dx-=droid.acc
+        else
+          droid.dx+=droid.acc
+        end
+      end
+      if droid.x < droid.zonex1  then
+        droid.flp = false
+      end
+      if droid.x > droid.zonex2 then
+        droid.flp = true
+      end
+      droid.x+=droid.dx
     else
-      droid.dx+=droid.acc
-      droid.running=true
+      droid.dx*=friction
+      --movement
+      if game_state == "game" then
+        if droid.flp then
+          droid.dx-=droid.acc
+        else
+          droid.dx+=droid.acc
+        end
+      end
+      if droid.x < droid.zonex1  then
+        droid.flp = false
+      end
+      if droid.x > droid.zonex2 then
+        droid.flp = true
+      end
+    
+      if droid.y < droid.zoney1 then
+        droid.dy +=0.1
+      end
+    
+      if droid.y > droid.zoney2 then
+        droid.dy -=0.1
+      end
+      droid.y+=droid.dy
+      droid.x+=droid.dx
     end
   end
-
-  if droid.x < droid.zonex1  then
-    droid.flp = false
-  end
-  if droid.x > droid.zonex2 then
-    droid.flp = true
-  end
-
-  --check collision left and right
-  if droid.dx<0 then
-    droid.dx=limit_speed(droid.dx,droid.max_dx)
-    if collide_map(droid,"left",1) then
-      droid.dx=0
-    end
-  elseif droid.dx>0 then
-    droid.dx=limit_speed(droid.dx,droid.max_dx)
-    if collide_map(droid,"right",1) then
-      droid.dx=0
-    end
-  end
-
-  
-  droid.x+=droid.dx
 end
 
-function droid_volant_update()
-
-  droid_volant.dx*=friction
-  --movement
-  if game_state == "game" then
-    if droid_volant.flp then
-      droid_volant.dx-=droid_volant.acc
-      droid_volant.running=true
-    else
-      droid_volant.dx+=droid_volant.acc
-      droid_volant.running=true
-    end
-  end
-
-
-  if droid_volant.x < droid_volant.zonex1  then
-    droid_volant.flp = false
-  end
-  if droid_volant.x > droid_volant.zonex2 then
-    droid_volant.flp = true
-  end
-
-  --check collision left and right
-  if droid_volant.dx<0 then
-    droid_volant.dx=limit_speed(droid_volant.dx,droid_volant.max_dx)
-    if collide_map(droid_volant,"left",1) then
-      droid_volant.dx=0
-    end
-  elseif droid_volant.dx>0 then
-    droid_volant.dx=limit_speed(droid_volant.dx,droid_volant.max_dx)
-    if collide_map(droid_volant,"right",1) then
-      droid_volant.dx=0
-    end
-  end
-
-  if droid_volant.y < droid_volant.zoney1 then
-    droid_volant.dy +=0.1
-  end
-
-  if droid_volant.y > droid_volant.zoney2 then
-    droid_volant.dy -=0.1
-  end
-  droid_volant.y+=droid_volant.dy
-  droid_volant.x+=droid_volant.dx
-end
 
 function guitare_animate() 
   if time()-guitare.anim>.3 then
@@ -828,28 +807,27 @@ function player_guit_animate()
 end
 
 function droid_animate()
-  if droid.running then
-  if time()-droid.anim>.2 then
-    droid.anim=time()
-    droid.sp+=2
-    if droid.sp>35 then
-      droid.sp=33
+  for droid in all(droids) do
+    if droid.w == 16 then
+      if time()-droid.anim>.2 then
+        droid.anim=time()
+        droid.sp+=2
+        if droid.sp>35 then
+          droid.sp=33
+        end
+      end
+    else
+      if time()-droid.anim>.2 then
+        droid.anim=time()
+        droid.sp+=1
+        if droid.sp>43 then
+          droid.sp=42
+        end
+      end
     end
-  end
   end
 end
 
-function droid_volant_animate()
-  if droid_volant.running then
-  if time()-droid_volant.anim>.2 then
-    droid_volant.anim=time()
-    droid_volant.sp+=1
-    if droid_volant.sp>43 then
-      droid_volant.sp=42
-    end
-  end
-  end
-end
 
 function checkpoint_animate(x)
 
@@ -876,62 +854,32 @@ function checkpoint_animate(x)
 end
 
 function projectils_update()
+
   for projectil in all(projectils) do
     if projectil.flp then
-      projectil.x -= 3
+      projectil.x -= 4
     else
-      projectil.x += 3
+      projectil.x += 4
     end
-    --check collision des projectils
-    if projectil.x<map_start 
-    or projectil.x>mapx_end 
-    or collide_map(projectil,"right",1)
-    or collide_map(projectil,"left",1)
-    or collide_npc(projectil,droid) 
-    or collide_npc(projectil,droid_volant)then
-      del(projectils,projectil)
-      if collide_npc(projectil,droid) then
-        explosion(droid.x,droid.y,5,100,true)
-        relocate_droid()
-      elseif collide_npc(projectil,droid_volant) then
-        explosion(droid_volant.x,droid_volant.y,3,100,true)
-        relocate_droid_volant()
-      else
-        explosion(projectil.x,projectil.y,2,100,true)
+    for droid in all(droids) do
+      --check collision des projectils
+      if projectil.x<map_start 
+      or projectil.x>mapx_end 
+      or collide_map(projectil,"right",1)
+      or collide_map(projectil,"left",1)
+      or collide_npc(projectil,droid) then
+        del(projectils,projectil)
+        if collide_npc(projectil,droid) then
+          explosion(droid.x,droid.y,droid.w/4+1,100,true)
+          del(droids,droid)
+        else
+          explosion(projectil.x,projectil.y,2,100,true)
+        end
       end
     end
   end
 end
 
-function relocate_droid()
-  droid.id +=1
-  if droid.id == 1 then
-    droid.x = 54*8
-    droid.y = 59*8
-    droid.zonex1 = 52*8
-    droid.zonex2 = 56*8
-  elseif droid.id == 2 then 
-    droid.x = 54*8
-    droid.y = 29*8
-    droid.zonex1 = 52*8
-    droid.zonex2 = 56*8
-  end
-end
-
-function relocate_droid_volant()
-  droid_volant.id +=1
-  if droid_volant.id == 1 then
-    droid_volant.x = 54*8
-    droid_volant.y = 29*8
-    droid_volant.zonex1 = 52*8
-    droid_volant.zonex2 = 56*8
-  elseif droid_volant.id == 2 then 
-    droid_volant.x = 54*8
-    droid_volant.y = 29*8
-    droid_volant.zonex1 = 52*8
-    droid_volant.zonex2 = 56*8
-  end
-end
 
 function limit_speed(num,maximum)
 return mid(-maximum,num,maximum)
