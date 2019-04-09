@@ -174,63 +174,11 @@ end
 
 --fin du snippet
 
-
-
 function _init()
   particles={}
-  player={
-    sp=1,--sprite du personnage
-    x=9,--position x initiale
-    y=430,--position y initiale
-    w=8,--width la largeur en pixel du perso
-    h=16,--height la hauteur en pixel du perso
-    flp=false,--flip, faux si vers la droite et vrai si vers la gauche
-    dx=0,--delta x, pour la vitesse de deplacement
-    dy=0,--delta y, pour la vitesse de saut/chute
-    max_dx=2,--vitesse max
-    max_dy=3,--vitesse max
-    acc=0.5,--acceleration, marche de pair avec delta x
-    boost=4,--  marche de pair avec delta y 
-    anim=0,--animation , pour regler le temps entre chaque frame
-    proj=96, --le sprite du projectile
-    fire = false, --si le joueur a deja tiré
-    running=false,
-    jumping=false,
-    doublejump=false,
-    falling=false,
-    landed=false,
-    alive = true,
-    down = false,
-    attak = false
-    }
-
-  menez={  
-  sp=32,
-  x=264, --position initiale
-  y=480,
-  w=8,
-  h=8,
-  flp=true -- vers la gauche
-  }
   checkpoint={}
-  create_checkpoint(240,488)
-  create_checkpoint(432,480)
-  droids = {}
-  --droid terrestre sprite 33
-  create_droid(33,110,480,0,120) --dessine le sprite 33 à (110,480) se deplacant de (0,480) à (120,480)
-  create_droid(33,496,440,480,512)
-  --droid volant sprite 42
-  create_droid(42,180,440,140,220,425,455) --dessine le sprite 42 à (180,440) se deplacant de (140,425) à (220,455)
-  create_droid(42,380,460,260,440,440,480)
- 
   sparks={}
-  for i=1,200 do
-    add(sparks,{
-      x=0,y=0,velx=0,vely=0,
-      r=0,alive=false
-    })
-  end
-
+  projectils = {}
   guitare={
     sp = 42,
     x = 120,
@@ -239,39 +187,45 @@ function _init()
     h = 8,
     anim = 0
   }
-
-  projectils = {}
-
+  menez={  
+    sp=32,
+    x=264, --position initiale
+    y=480,
+    w=8,
+    h=8,
+    flp=true -- vers la gauche
+  }
+  for i=1,200 do
+    add(sparks,{
+      x=0,y=0,velx=0,vely=0,
+      r=0,alive=false
+    })
+  end
+  create_checkpoint(240,488)
+  create_checkpoint(432,480)
   --simple camera
   cam_x=0
   cam_y=0
   -- variable globale
-  chrono=0 --sert pour animé le press x to play
   game_state="menu"
   gravity=0.3
   friction=0.85
   interaction = false
   start_bulle = false
-  hit = false --si buffa a pris un coup
-  del_acc = 1000-- pour creer un delay
   checkpointx = 9 --pour memoriser le dernier checkpoint
-  checkpointy = 446
+  checkpointy = 430
   checkpoint_number = 0 --pour l'animation du checkpoint
   spnum = 0
-  bob = false -- technique roumaine pour contourner le probleme avec l'animation de la guitare (ne pas prendre exemple)
   guit_found = false --si buffa a trouver la guitare
   tmp = 0
-  reattak = true
-
-
+  reattak = true --pour creer un delai entre les attaques
   --map limits
   map_start=0
   mapx_end=1024
   mapy_end = 512
-
   intro_init()
   dtb_init()
-  music(6)
+  player_reset()
 end
 
 -->8
@@ -280,19 +234,17 @@ end
 function _update()
 
   if game_state == "plot" then
-  if (keys:down(5))  then
-    plot()
-    game_state = "game"
+    if (keys:down(5))  then
+      plot()
+      game_state = "game"
+    end
   end
-  end
-
   if game_state == "menu" then
   skydeg += 0.0005
-  if keys:down(5) then
-    game_state = "plot"
+    if keys:down(5) then
+      game_state = "plot"
+    end
   end
-  end
-
   if game_state == "game" and player.alive then
     player_update()
     if guit_found then
@@ -318,7 +270,6 @@ function _update()
     if cam_x>mapx_end-128 then
       cam_x=mapx_end-128
     end
-
     cam_y=player.y-64+(player.h/2)
     if cam_y<map_start then
       cam_y=map_start
@@ -326,25 +277,19 @@ function _update()
     if cam_y>mapy_end-128 then
       cam_y=mapy_end-128
     end
-
   end
 
   if not player.alive then
-    
     if del_acc == 0 then
       player_reset()
     else
       del_acc -= 1
     end
-    
   end
-
   explosion_update()
   foreach(particles,update_part)
   keys:update()
   camera(cam_x,cam_y)
-
-
 end
 
 
@@ -360,11 +305,9 @@ function _draw()
   if game_state == "plot" then
     plot()
   end
-
   if game_state == "game"  then
     cls()
     map(0,0,0,0,128,64)
-
     --Dessines les arbres
     spr(56,0,456,2,5,true) -- arbre 1/2
     spr(56,16,456,2,5,false) -- arbre 2/2
@@ -372,17 +315,14 @@ function _draw()
     spr(56,62,456,2,5,false) -- arbre 2/2
     spr(56,92,456,2,5,true) -- arbre 1/2
     spr(56,108,456,2,5,false) -- arbre 2/2
-
     --Dessine les checkpoints
     spr(checkpoint[1].sp,checkpoint[1].x,checkpoint[1].y,1,1,checkpoint[1].flp)
     spr(checkpoint[2].sp,checkpoint[2].x,checkpoint[2].y,1,1,checkpoint[2].flp)
-
     --Dessine les npc
     spr(menez.sp,menez.x,menez.y,1,2,menez.flp)
     for droid in all(droids) do
       spr(droid.sp,droid.x,droid.y,droid.w/8,droid.h/8,droid.flp)
     end
-
     if player.alive then
       spr(player.sp,player.x,player.y,player.w/8,2,player.flp)
       for projectil in all(projectils) do
@@ -396,12 +336,10 @@ function _draw()
     draw_explosion()
     foreach(particles,draw_part)
   end
-
 end
 
 -->8
 --collisions
-
 function collide_map(obj,aim,flag)
   --obj = table needs x,y,w,h
   --aim = left,right,up,down
@@ -554,7 +492,7 @@ function player_update()
   end
   if collide_npc(player,guitare,8) and not guit_found then
     guit_found = true
-    player.sp = 34
+    plsp = 34
   end
   --check collision left and right
   if player.dx<0 then
@@ -979,8 +917,8 @@ function player_dead()
 end
 
 function player_reset()
-
   player={
+    sp=plsp,--sprite du personnage
     x=checkpointx,--position x initiale
     y=checkpointy-32,--position y initiale
     w=8,--width la largeur en pixel du perso
@@ -993,15 +931,24 @@ function player_reset()
     acc=0.5,--acceleration, marche de pair avec delta x
     boost=4,--  marche de pair avec delta y 
     anim=0,--animation , pour regler le temps entre chaque frame
-    proj = 96,
+    proj=96, --le sprite du projectile
+    fire = false, --si le joueur a deja tiré
     running=false,
     jumping=false,
+    doublejump=false,
     falling=false,
     landed=false,
     alive = true,
     down = false,
-    attak = false,
+    attak = false
     }
+    droids = {} --pour pas qu'il se cummul on les supprime et recreer a chaque mort
+    --droid terrestre sprite 33
+    create_droid(33,110,480,0,120) --dessine le sprite 33 à (110,480) se deplacant de (0,480) à (120,480)
+    create_droid(33,496,440,480,512)
+    --droid volant sprite 42
+    create_droid(42,180,440,140,220,425,455) --dessine le sprite 42 à (180,440) se deplacant de (140,425) à (220,455)
+    create_droid(42,380,460,260,440,440,480)
     chrono=0 --sert pour animé le press x to play
     hit = false --si buffa a pris un coup
     del_acc = 1000 -- pour creer un delay
@@ -1079,7 +1026,6 @@ function create_droid(type,x,y,zx1,zx2,zy1,zy2)
     })
   end
 end
-
 function create_checkpoint(x,y)
   add(checkpoint,{ 
     sp=112,
@@ -1092,7 +1038,6 @@ function create_checkpoint(x,y)
     }
   )
 end
-
 __gfx__
 00000000070000000000000000000000000000000000000000000000000000000000000000000000070000000000000000000000000000000700000000777000
 079777000770000000797770007977700079777000797770079777f00079ff700000000000797770077000000079777000797770007977700770000000000700
