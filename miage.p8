@@ -177,6 +177,7 @@ end
 
 
 function _init()
+  particles={}
   player={
     sp=1,--sprite du personnage
     x=9,--position x initiale
@@ -195,6 +196,7 @@ function _init()
     fire = false, --si le joueur a deja tiré
     running=false,
     jumping=false,
+    doublejump=false,
     falling=false,
     landed=false,
     alive = true,
@@ -211,75 +213,16 @@ function _init()
   flp=true -- vers la gauche
   }
   checkpoint={}
-  add(checkpoint,{ 
-    sp=112,
-    x=240, --position initiale
-    y=488,
-    h=8,
-    w=8,
-    flp=false, -- vers la gauche
-    anim = 0,
-    }
-  )
-  add(checkpoint,{ 
-    sp=112,
-    x=432, --position initiale
-    y=480,
-    h=8,
-    w=8,
-    flp=false, -- vers la gauche
-    anim = 0,
-    }
-  )
+  create_checkpoint(240,488)
+  create_checkpoint(432,480)
   droids = {}
-  add(droids,{
-    sp=33,--droid terrestre
-    x=110,--position x initiale
-    y=480,--position y initiale
-    w=16,--width la largeur en pixel du perso
-    h=16,--height la hauteur en pixel du perso
-    flp=false,--flip, faux si vers la droite et vrai si vers la gauche
-    dx=0,--delta x, pour la vitesse de deplacement
-    max_dx=0.7,--vitesse max
-    acc=0.5,--acceleration, marche de pair avec delta x
-    anim=0,--animation , pour regler le temps entre chaque frame
-    zonex1 = 0, --zone ou il vagabonde entre zonex1 et zonex2
-    zonex2 = 120
-  })
-  add(droids,{
-    sp=42, -- droid volant
-    x=180,--position x initiale
-    y=440,--position y initiale
-    w=8,--width la largeur en pixel du perso
-    h=8,--height la hauteur en pixel du perso
-    flp=false,--flip, faux si vers la droite et vrai si vers la gauche
-    dx=0,--delta x, pour la vitesse de deplacement
-    dy=1,--delta y, pour la vitesse de saut/chute
-    max_dx=0.7,--vitesse max
-    acc=0.5,--acceleration, marche de pair avec delta x
-    anim=0,--animation , pour regler le temps entre chaque frame
-    zonex1 = 140, --zone ou il vagabonde entre zonex1 et zonex2
-    zonex2 = 220,
-    zoney1 = 425, --zone ou il vagabonde entre zoney1 et zoney2
-    zoney2 = 455
-  })
-  add(droids,{
-    sp=42,
-    x=380,--position x initiale
-    y=460,--position y initiale
-    w=8,--width la largeur en pixel du perso
-    h=8,--height la hauteur en pixel du perso
-    flp=false,--flip, faux si vers la droite et vrai si vers la gauche
-    dx=0,--delta x, pour la vitesse de deplacement
-    dy=1,--delta y, pour la vitesse de saut/chute
-    max_dx=0.7,--vitesse max
-    acc=0.5,--acceleration, marche de pair avec delta x
-    anim=0,--animation , pour regler le temps entre chaque frame
-    zonex1 = 240, --zone ou il vagabonde entre zonex1 et zonex2
-    zonex2 = 440,
-    zoney1 = 440, --zone ou il vagabonde entre zoney1 et zoney2
-    zoney2 = 480
-  })
+  --droid terrestre sprite 33
+  create_droid(33,110,480,0,120) --dessine le sprite 33 à (110,480) se deplacant de (0,480) à (120,480)
+  create_droid(33,496,440,480,512)
+  --droid volant sprite 42
+  create_droid(42,180,440,140,220,425,455) --dessine le sprite 42 à (180,440) se deplacant de (140,425) à (220,455)
+  create_droid(42,380,460,260,440,440,480)
+ 
   sparks={}
   for i=1,200 do
     add(sparks,{
@@ -397,6 +340,7 @@ function _update()
   end
 
   explosion_update()
+  foreach(particles,update_part)
   keys:update()
   camera(cam_x,cam_y)
 
@@ -450,6 +394,7 @@ function _draw()
     end
     dialog_menez()
     draw_explosion()
+    foreach(particles,draw_part)
   end
 
 end
@@ -532,17 +477,18 @@ function player_update()
   player.dx*=friction
 
   --controls
-  if btn(0) and game_state == "game" and #dtb_queu==0 then
-    player.dx-=player.acc
-    player.running=true
-    player.flp=true
+  if game_state == "game" and #dtb_queu==0 and not player.down then
+    if btn(0) then
+      player.dx-=player.acc
+      player.running=true
+      player.flp=true
+    end
+    if btn(1) then
+      player.dx+=player.acc
+      player.running=true
+      player.flp=false
+    end
   end
-  if btn(1) and game_state == "game" and #dtb_queu==0 then
-    player.dx+=player.acc
-    player.running=true
-    player.flp=false
-  end
-
 
   -- stop running 
   if player.running
@@ -569,57 +515,58 @@ function player_update()
     else
       player.down = false
     end
-      --jump
-     if btnp(2) then
+    --jump
+    if keys:down(2) then
       player.dy-=player.boost
       player.landed=false
+      --player.doublejump=true
    end
   end
-  
-
+  --double jump
+  if keys:down(2) and game_state == "game" 
+  and #dtb_queu==0 and (player.jumping or player.falling) and player.doublejump then
+    player.dy=0
+    for i=1,6 do
+      cr_part(player.x+player.w/2+player.dx,player.y+player.h,7,1)
+      cr_part(player.x+player.w/2+player.dx,player.y+player.h,7,-1)
+     end
+    player.dy-=player.boost*0.7
+    player.doublejump=false
+ end
   --check collision up and down
   if player.dy>0 then
-  player.falling=true
-  player.landed=false
-  player.jumping=false
-
-  player.dy=limit_speed(player.dy,player.max_dy)
-
-  if collide_map(player,"down",0) then
-    player.landed=true
-    player.falling=false
-    player.dy=0
-    player.y-=((player.y+player.h+1)%8)-1
-  end
+    player.falling=true
+    player.landed=false
+    player.jumping=false
+    --player.dy=limit_speed(player.dy,player.max_dy)
+    if collide_map(player,"down",0) then
+      player.doublejump = true
+      player.landed=true
+      player.falling=false
+      player.dy=0
+      player.y-=((player.y+player.h+1)%8)-1
+    end
   elseif player.dy<0 then
     player.jumping=true
     if collide_map(player,"up",1) then
       player.dy=0
     end
   end
-
   if collide_npc(player,guitare,8) and not guit_found then
     guit_found = true
     player.sp = 34
   end
-
   --check collision left and right
   if player.dx<0 then
-
-  player.dx=limit_speed(player.dx,player.max_dx)
-
-  if collide_map(player,"left",1) then
-    player.dx=0
-  end
-
+   player.dx=limit_speed(player.dx,player.max_dx)
+    if collide_map(player,"left",1) then
+      player.dx=0
+    end
   elseif player.dx>0 then
-
     player.dx=limit_speed(player.dx,player.max_dx)
-
-  if collide_map(player,"right",1) then
-    player.dx=0
-  end
-
+    if collide_map(player,"right",1) then
+      player.dx=0
+    end
   end
 
   if collide_npc(player,menez,20) and not start_bulle and #dtb_queu==0 then
@@ -971,7 +918,7 @@ function dialog_menez()
 end
 
 
-function explosion(x,y,r,particles,multi)
+function explosion(x,y,r,parti,multi)
   local selected = 0
   for i=1,#sparks do
     if not sparks[i].alive then
@@ -988,7 +935,7 @@ function explosion(x,y,r,particles,multi)
       else
         sparks[i].c = 7
       end
-      if selected == particles then
+      if selected == parti then
       break end
     end
   end
@@ -1023,10 +970,10 @@ end
 function player_dead()
   player.alive = false
   if not hit then
-    explosion(player.x,player.y+8,2,100)
     music(4)
     del_acc = 65 -- change pour delai avant restart
   end
+  explosion(player.x,player.y,2)
   hit = true
   
 end
@@ -1058,8 +1005,7 @@ function player_reset()
     chrono=0 --sert pour animé le press x to play
     hit = false --si buffa a pris un coup
     del_acc = 1000 -- pour creer un delay
-    -- on reset la musique 
-    music(6)
+    music(6) -- on reset la musique 
 end
 
 function fire_projectil(emeteur)
@@ -1074,10 +1020,78 @@ function fire_projectil(emeteur)
   })
 end
 
+--creer les particules
+function cr_part(x,y,c,s)
+  local p={}
+  p.x=x
+  p.y=y
+  p.c=c
+  local angle=rnd(60)+270
+  p.vsp=sin(angle/360)
+  p.hsp=cos(angle/360)*s
+  p.r=2+rnd(1)
+  add(particles,p)
+ end
+function draw_part(p)
+    circfill(p.x,p.y,p.r,p.c)
+end
+function update_part(p)
+    p.r-=rnd(0.4)
+    p.x+=p.hsp
+    p.y+=p.vsp
+    if (p.r<0) del(particles,p)
+    if (p.r<0) del(particles,p)
+end
 
+function create_droid(type,x,y,zx1,zx2,zy1,zy2)
+  if type == 33 then
+    add(droids,{
+      sp=type,--droid terrestre
+      x=x,--position x initiale
+      y=y,--position y initiale
+      w=16,--width la largeur en pixel du perso
+      h=16,--height la hauteur en pixel du perso
+      flp=false,--flip, faux si vers la droite et vrai si vers la gauche
+      dx=0,--delta x, pour la vitesse de deplacement
+      max_dx=0.7,--vitesse max
+      acc=0.5,--acceleration, marche de pair avec delta x
+      anim=0,--animation , pour regler le temps entre chaque frame
+      zonex1 = zx1, --zone ou il vagabonde entre zonex1 et zonex2
+      zonex2 = zx2
+    })
+  else
+    add(droids,{
+      sp=type, -- droid volant
+      x=x,--position x initiale
+      y=y,--position y initiale
+      w=8,--width la largeur en pixel du perso
+      h=8,--height la hauteur en pixel du perso
+      flp=false,--flip, faux si vers la droite et vrai si vers la gauche
+      dx=0,--delta x, pour la vitesse de deplacement
+      dy=1,--delta y, pour la vitesse de saut/chute
+      max_dx=0.7,--vitesse max
+      acc=0.5,--acceleration, marche de pair avec delta x
+      anim=0,--animation , pour regler le temps entre chaque frame
+      zonex1 = zx1, --zone ou il vagabonde entre zonex1 et zonex2
+      zonex2 = zx2,
+      zoney1 = zy1, --zone ou il vagabonde entre zoney1 et zoney2
+      zoney2 = zy2
+    })
+  end
+end
 
-  
-
+function create_checkpoint(x,y)
+  add(checkpoint,{ 
+    sp=112,
+    x=x, --position initiale
+    y=y,
+    h=8,
+    w=8,
+    flp=false, -- vers la gauche
+    anim = 0,
+    }
+  )
+end
 
 __gfx__
 00000000070000000000000000000000000000000000000000000000000000000000000000000000070000000000000000000000000000000700000000777000
@@ -1192,15 +1206,15 @@ cccccccc0000000000000ccc55555555000000000000000000000000000000005555555555551ccc
 44444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444
 44444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444
 44444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444
-44444444444444444444444444444444444444444444444444440404044444444444444444444444444444444444444444444444444444444444444444444444
+44444444444444444444444444444444444444444444444444040404044444444444444444444444444444444444444444444444444444444444444444444444
 44444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444
-44444444444444444444444444444444444444444444444444440505054444444444444444444444444444444444444444444444444444444444444444444444
+44444444444444444444444444444444444444444444444444050505054444444444444444444444444444444444444444444444444444444444444404040404
+04444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444
+44444444444444444444444444444444444444444444444444444444444444444444444444444444444444444404044444444444444444444444444405050505
+05444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444
+44444444444444444444444444444444444444040444444444444444444444444444444444444444444444444405054444444444444444444444444444444444
 44444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444
-44444444444444444444444444444444444444444444444444444444444444444444444444444444444444444404044444444444444444444444444444444444
-44444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444
-44444444444444444444444444444444444444440404040444444444444444444444444444444444444444444405054444444444444444444444444444444444
-44444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444
-44444444444444444444444444444444444444440505050544444444444444444444444404040444444444444444444444444444444444444444444444444444
+44444444444444444444444444444444444444050544444444444444444444444444444404040444444444444444444444444444444444444444444444444444
 44444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444
 97979797979797979797353535353535354444444444444444444444444444444444444405050544444444444444444444444444040404040444444444444444
 44444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444
