@@ -288,6 +288,8 @@ function _update()
   end
   explosion_update()
   foreach(particles,update_part)
+  foreach(p_volants,update_pv)
+  collide_pv(p_volants[1],p_volants[#p_volants])
   keys:update()
   camera(cam_x,cam_y)
 end
@@ -309,19 +311,24 @@ function _draw()
     cls()
     map(0,0,0,0,128,64)
     --dessines les arbres
-    spr(56,0,456,2,5,true) -- arbre 1/2
-    spr(56,16,456,2,5,false) -- arbre 2/2
-    spr(56,46,456,2,5,true) -- arbre 1/2
-    spr(56,62,456,2,5,false) -- arbre 2/2
-    spr(56,92,456,2,5,true) -- arbre 1/2
-    spr(56,108,456,2,5,false) -- arbre 2/2
+    -- spr(56,0,456,2,5,true) -- arbre 1/2
+    -- spr(56,16,456,2,5,false) -- arbre 2/2
+    -- spr(56,46,456,2,5,true) -- arbre 1/2
+    -- spr(56,62,456,2,5,false) -- arbre 2/2
+    -- spr(56,92,456,2,5,true) -- arbre 1/2
+    -- spr(56,108,456,2,5,false) -- arbre 2/2
     --dessine les checkpoints
     spr(checkpoint[1].sp,checkpoint[1].x,checkpoint[1].y,1,1,checkpoint[1].flp)
     spr(checkpoint[2].sp,checkpoint[2].x,checkpoint[2].y,1,1,checkpoint[2].flp)
     --dessine les npc
     spr(menez.sp,menez.x,menez.y,1,2,menez.flp)
+    print(flr(player.y/8+player.h/8),player.x,player.y-8)
     for droid in all(droids) do
       spr(droid.sp,droid.x,droid.y,droid.w/8,droid.h/8,droid.flp)
+    end
+    --dessine les platformes volantes
+    for p_volant in all(p_volants) do
+      spr(p_volant.sp,p_volant.x,p_volant.y)
     end
     if player.alive then
       spr(player.sp,player.x,player.y,player.w/8,2,player.flp)
@@ -382,6 +389,8 @@ end
 
 end
 
+
+
 function broken_titles() 
   local x1=player.x+2  local y1=player.y+player.h
   local x2=player.x+player.w-3  local y2=player.y+player.h
@@ -390,11 +399,14 @@ function broken_titles()
   x2/=8    y2/=8
   if (mget(x1,y1) == 97 ) then
     explode_titles(x1,y1)
-  elseif (mget(x1,y2) == 97 ) then
+  end
+  if (mget(x1,y2) == 97 ) then
     explode_titles(x1,y2)
-  elseif (mget(x2,y1) == 97 ) then
+  end
+  if (mget(x2,y1) == 97 ) then
     explode_titles(x2,y1)
-  elseif (mget(x2,y2) == 97 ) then
+  end
+  if (mget(x2,y2) == 97 ) then
     explode_titles(x2,y2)
   end
 end
@@ -402,7 +414,7 @@ end
 function explode_titles(x,y)
   if del_title== 0 then
     mset(x,y,68)
-    explosion(x*8,y*8,2,100,5)
+    explosion(x*8,y*8,2,100,4)
     del_title=12 
   else
     del_title -= 1
@@ -441,22 +453,22 @@ function player_update()
 
   if game_state == "game" 
   and #dtb_queu==0 
-  and player.landed then
+   then
     --fire
-    if keys:down(4) and not player.down and not player.running and guit_found and reattak then
+    if keys:down(4) and not player.down  and guit_found and reattak then
       fire_projectil(player)
       player.attak = true
     else
       player.attak = false
     end
     --se baisser
-    if keys:held(3) and game_state == "game" and #dtb_queu==0 and not player.falling and not player.jumping then
+    if keys:held(3) and game_state == "game" and #dtb_queu==0 and not player.falling and not player.jumping and player.landed then
       player.down = true
     else
       player.down = false
     end
     --jump
-    if keys:down(2) then
+    if keys:down(2) and player.landed then
       player.dy-=player.boost
       player.landed=false
       --player.doublejump=true
@@ -478,8 +490,8 @@ function player_update()
     player.falling=true
     player.landed=false
     player.jumping=false
-    --player.dy=limit_speed(player.dy,player.max_dy)
-    if collide_map(player,"down",0) or collide_map(player,"down",2) then
+  --player.dy=limit_speed(player.dy,player.max_dy)
+    if collide_map(player,"down",0) or collide_map(player,"down",2)   then
       player.doublejump = true
       player.landed=true
       player.falling=false
@@ -663,7 +675,7 @@ function player_guit_animate()
     player.w = 16
     reattak = false
   end
-  if time()-tmp>.2 or btn(0) or btn(1) or btn(2) or btn(3) then  
+  if time()-tmp>.2 then  
     player.w = 8
     reattak = true
     if player.jumping then
@@ -745,7 +757,6 @@ function checkpoint_animate(x)
 end
 
 function projectils_update()
-
   for projectil in all(projectils) do
     if projectil.flp then
       projectil.x -= 4
@@ -754,8 +765,8 @@ function projectils_update()
     end
     for droid in all(droids) do
       --check collision des projectils
-      if projectil.x<map_start 
-      or projectil.x>mapx_end 
+      if projectil.x<player.x-150 
+      or projectil.x>player.x+150 
       or collide_map(projectil,"right",1)
       or collide_map(projectil,"left",1)
       or collide_obj(projectil,droid) then
@@ -950,17 +961,21 @@ function player_reset()
     attak = false
     }
     droids = {} --pour pas qu'il se cummul on les supprime et recreer a chaque mort
+    projectils={}
+    p_volants={}
     --droid terrestre sprite 33
     create_droid(33,110,480,0,120) --dessine le sprite 33 à (110,480) se deplacant de (0,480) à (120,480)
     create_droid(33,496,440,480,512)
     --droid volant sprite 42
     create_droid(42,180,440,140,220,425,455) --dessine le sprite 42 à (180,440) se deplacant de (140,425) à (220,455)
     create_droid(42,380,460,260,440,440,480)
+    --platform volant sprite 64
+    create_p_volant(24,58,5,8,56) --dessine le y en bloc et non en pixels
     chrono=0 --sert pour animé le press x to play
     hit = false --si buffa a pris un coup
     del_acc = 1000 -- pour creer un delay
     del_title=12
-    music(6) -- on reset la musique 
+    --music(6) -- on reset la musique 
 
 end
 
@@ -997,6 +1012,23 @@ function update_part(p)
     p.y+=p.vsp
     if (p.r<0) del(particles,p)
     if (p.r<0) del(particles,p)
+end
+
+function update_pv(p)
+  if p.flp then
+    p.x -=1
+  else
+    p.x+=1
+  end
+  if p.x < p.x1 then p.flp=false end
+  if p.x > p.x2 then p.flp=true end
+end
+
+function collide_pv(f,l)
+  mset(f.x/8-1,f.y/8,68)
+  mset(l.x/8+1,l.y/8,68)
+  mset(f.x/8,f.y/8,84)
+  mset(l.x/8,l.y/8,84)
 end
 
 function create_droid(type,x,y,zx1,zx2,zy1,zy2)
@@ -1043,9 +1075,26 @@ function create_checkpoint(x,y)
     h=8,
     w=8,
     flp=false, -- vers la gauche
-    anim = 0,
+    anim = 0
     }
   )
+end
+
+function create_p_volant(x,y,l,x1,x2)
+  for i=0,l-1 do
+    add(p_volants,{ 
+      sp=64,
+      x=x+i*8, --position initiale
+      y=y*8,
+      h=8,
+      w=8,
+      flp=false, -- vers la gauche
+      f = 84,
+      x1=x1+i*8,
+      x2=x2+i*8
+      }
+    )
+  end
 end
 
 function collide_obj(p,o,distance)
@@ -1099,14 +1148,14 @@ bbbbb3b3333333333333330cccc77ccccccccccc000000000000000000000000bbbbbbbbb3bbcccc
 4141a99900222200222000cc77777777cccccccc000000000000000000000000bbbbbbbbbbb333bc000000077777777777777700000777777700000000000000
 4445a9992244442244420ccccccccccccccccccc000000000000000000000000bbbbbbbbbbbb33bc000000000000000000000000007777770099999900000000
 4455999a4444444444420ccccccccccccccccccc000000000000000000000000bbbbbbbbbbbbbbbc000000000000000000000000077777000099999999900000
-111111114544444544420ccccccccccc00000000000000000000000000000000b3bbbbb3bbbbbbbb000000000000000000000000077770000099999999990000
-111111114444444444420ccccccccccc0000000000000000000000000000000033bbbbb3b33bbbb3000000000000000000000000777700000011111119999000
-c111111c4444444444420ccccccccccc000000000000000000000000000000003bbbb3b3bb3bb3b3000000077777000000000007777700000011ccccc1999900
-c11111cc4445444444420ccc4644464400000000000000000000000000000000bbbb33333b3333bc0000000777777770000000077770000001cc77777c199900
-c11c1ccc4444444445420cccc6ccc6cc00000000000000000000000000000000b3b3bb33b3333bbc000000077777777700000007777000001ccc7777cc719990
-c11ccccc4444444444420ccc4644464400000000000000000000000000000000b33533333333351c00000000000777777000007777000001cccc77c7cc7c1990
-cc1ccccc2222222222220cccc6ccc6cc0000000000000000000000000000000033555335553555cc0000000000000777770000777700001c77ccccccc7cc1999
-cccccccc0000000000000ccc55555555000000000000000000000000000000005555555555551ccc0000000000000077777000777700001c77cc7cccc7c71999
+111111114544444544420ccccccccccccccccccc000000000000000000000000b3bbbbb3bbbbbbbb000000000000000000000000077770000099999999990000
+111111114444444444420ccccccccccccccccccc00000000000000000000000033bbbbb3b33bbbb3000000000000000000000000777700000011111119999000
+c111111c4444444444420ccccccccccccccccccc0000000000000000000000003bbbb3b3bb3bb3b3000000077777000000000007777700000011ccccc1999900
+c11111cc4445444444420ccc46444644cccccccc000000000000000000000000bbbb33333b3333bc0000000777777770000000077770000001cc77777c199900
+c11c1ccc4444444445420cccc6ccc6cccccccccc000000000000000000000000b3b3bb33b3333bbc000000077777777700000007777000001ccc7777cc719990
+c11ccccc4444444444420ccc46444644cccccccc000000000000000000000000b33533333333351c00000000000777777000007777000001cccc77c7cc7c1990
+cc1ccccc2222222222220cccc6ccc6cccccccccc00000000000000000000000033555335553555cc0000000000000777770000777700001c77ccccccc7cc1999
+cccccccc0000000000000ccc55555555cccccccc0000000000000000000000005555555555551ccc0000000000000077777000777700001c77cc7cccc7c71999
 00999999b5bb555b00000000000000000000000000000000000000000000000015551151551ccccc0000000000000007777000777700001c7ccc77ccccc7c199
 00900009555555550000000000000000000000000000000000000000000000004112411111cccccc0000000000000007777700777700001c7cc77cccccc7c199
 009999995b5bb353000000000000000000000000000000000000000000000000442411111ccccccc0000000000000007777700777700001c7ccc7cccccc71999
@@ -1318,7 +1367,7 @@ __label__
 11111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111
 
 __gff__
-0000000000000000000400000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000000000000000001030300000000000000000000000000000303000000000000000000000000000005000000000000000000000000000000000000000000000000000000000000
+0000000000000000000400000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000000000000000000001030300800000000000000000000000000303000100000000000000000000000005000000000000000000000000000000000000000000000000000000000000
 0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
 __map__
 4444444444444444444444444444444444444444445144444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444444
