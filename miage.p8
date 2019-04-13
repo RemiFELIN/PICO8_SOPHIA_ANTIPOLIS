@@ -97,8 +97,6 @@ function _dtb_nextline()
     dtb_dislines[i]=dtb_dislines[i+1]
   end
   dtb_dislines[#dtb_dislines]=""
-  --ajout sfx 'bip bip'
-  --sfx(8)
 end
 
 function _dtb_nexttext()
@@ -108,8 +106,6 @@ function _dtb_nexttext()
   del(dtb_queuf,dtb_queuf[1])
   del(dtb_queu,dtb_queu[1])
   _dtb_clean()
-  --ajout sfx 'bip bip'
-  --sfx(8)
 end
 
 -- make sure that this function is called each update.
@@ -179,6 +175,7 @@ function _init()
   checkpoint={}
   sparks={}
   projectils = {}
+  pnj={}
   guitare={
     sp = 42,
     x = 120,
@@ -189,11 +186,13 @@ function _init()
   }
   menez={  
     sp=32,
-    x=264, --position initiale
+    x=64, --position initiale
     y=480,
     w=8,
     h=8,
-    flp=true -- vers la gauche
+    flp=true, -- vers la gauche
+    ra = "reponse a",
+    rb = "reponse b"
   }
   for i=1,200 do
     add(sparks,{
@@ -246,7 +245,11 @@ function _update()
     end
   end
   if game_state == "game" and player.alive then
-    player_update()
+    if dialog then
+      dialog_update()
+    else
+      player_update()
+    end
     if guit_found then
       player_guit_animate()
     else
@@ -254,7 +257,6 @@ function _update()
     end
     droid_update()
     droid_animate()
-    dtb_update()
     projectils_update()
     if not guit_found then
       guitare_animate()
@@ -338,7 +340,8 @@ function _draw()
     if not guit_found then
       spr(guitare.sp,guitare.x,guitare.y)
     end
-    dialog_menez()
+    if interaction then drawx(pnj.x ,pnj.y - 8) end
+    if dialog  then dialog_draw() end
     draw_explosion()
     foreach(particles,draw_part)
   end
@@ -422,13 +425,42 @@ end
 -- -->8
 -- --player
 
+function dialog_update()
+  dtb_update()
+  if btn(0) then
+    gauche = true
+  end
+  if btn(1) then
+    gauche = false
+  end
+end
+
+function dialog_draw()
+  dtb_draw()
+  if talked then
+    if  #dtb_queu == 0 then 
+      dialog=false 
+      talked = false
+    end
+  else
+    if pnj==menez then
+      dtb_disp("buffa:hello menez.")
+      dtb_disp("menez:salut mich,il y a des checkpoints maintenant, passe a cote d'une pancarte et sucuide toi tu vas voir.")
+      dtb_disp("buffa:peut etre une autre fois.")
+      talked = true
+    end
+  end 
+end
+
+
+
 function player_update()
   --physics
   player.dy+=gravity
   player.dx*=friction
 
   --controls
-  if game_state == "game" and #dtb_queu==0 and not player.down then
+  if not player.down then
     if btn(0) then
       player.dx-=player.acc
       player.running=true
@@ -450,32 +482,26 @@ function player_update()
     player.running=false
   end
 
-  if game_state == "game" 
-  and #dtb_queu==0 
-   then
-    --fire
-    if keys:down(4) and not player.down  and guit_found and reattak then
-      fire_projectil(player)
-      player.attak = true
-    else
-      player.attak = false
-    end
-    --se baisser
-    if keys:held(3) and game_state == "game" and #dtb_queu==0 and not player.falling and not player.jumping and player.landed then
-      player.down = true
-    else
-      player.down = false
-    end
-    --jump
-    if keys:down(2) and player.landed then
-      player.dy-=player.boost
-      player.landed=false
-      --player.doublejump=true
-   end
+  --fire
+  if keys:down(4) and not player.down  and guit_found and reattak then
+    fire_projectil(player)
+    player.attak = true
+  else
+    player.attak = false
+  end
+  --se baisser
+  if keys:held(3) and not player.falling and not player.jumping and player.landed then
+    player.down = true
+  else
+    player.down = false
+  end
+  --jump
+  if keys:down(2) and player.landed then
+    player.dy-=player.boost
+    player.landed=false
   end
   --double jump
-  if keys:down(2) and game_state == "game" 
-  and #dtb_queu==0 and (player.jumping or player.falling) and player.doublejump then
+  if keys:down(2) and (player.jumping or player.falling) and player.doublejump then
     player.dy=0
     for i=1,6 do
       cr_part(player.x+player.w/2+player.dx,player.y+player.h,7,1)
@@ -489,8 +515,7 @@ function player_update()
     player.falling=true
     player.landed=false
     player.jumping=false
-  --player.dy=limit_speed(player.dy,player.max_dy)
-    if collide_map(player,"down",0) or collide_map(player,"down",2)   then
+    if collide_map(player,"down",0) or collide_map(player,"down",2) then
       player.doublejump = true
       player.landed=true
       player.falling=false
@@ -531,10 +556,11 @@ function player_update()
     end
   end
 
-  if collide_obj(player,menez,8) and not start_bulle and #dtb_queu==0 then
+  if collide_obj(player,menez,8) and #dtb_queu==0 then
     interaction = true
+    pnj = menez
   else
-   interaction = false
+    interaction=false
   end
   for droid in all(droids) do
     if collide_obj(player,droid,-1) then
@@ -550,17 +576,12 @@ function player_update()
     end
   end
 
-  if keys:down(5) and interaction then
+  if keys:down(5) and interaction and #dtb_queu==0 then
     interaction = false
-    start_bulle = true
+    dialog = true
   end
-  if #dtb_queu == 0 then
-    player.x+=player.dx
-    player.y+=player.dy
-  else
-    player.dx = 0
-    player.dy = 0
-  end
+  player.x+=player.dx
+  player.y+=player.dy
 
   --limit player to map
   if player.x<map_start then
@@ -865,18 +886,6 @@ function wait(a)
   end 
 end
 
-function dialog_menez()
-  dtb_draw()
-  if (interaction) then
-    drawx(menez.x ,menez.y - 8)
-  end
-  if start_bulle then
-    dtb_disp("buffa:hello menez.")
-    dtb_disp("menez:salut mich,il y a des checkpoints maintenant, passe a cote d'une pancarte et sucuide toi tu vas voir.")
-    dtb_disp("buffa:peut etre une autre fois.")
-    start_bulle = false
-  end
-end
 
 
 function explosion(x,y,r,parti,c)
@@ -969,7 +978,7 @@ function player_reset()
     projectils={}
     p_volants={}
     --droid terrestre sprite 33
-    create_droid(33,110,480,0,120) --dessine le sprite 33 à (110,480) se deplacant de (0,480) à (120,480)
+    --create_droid(33,110,480,0,120) --dessine le sprite 33 à (110,480) se deplacant de (0,480) à (120,480)
     create_droid(33,496,440,480,512)
     --droid volant sprite 42
     create_droid(42,180,440,140,220,425,455) --dessine le sprite 42 à (180,440) se deplacant de (140,425) à (220,455)
@@ -980,6 +989,9 @@ function player_reset()
     hit = false --si buffa a pris un coup
     del_acc = 1000 -- pour creer un delay
     del_title=12
+    gauche = true -- pour le qcm highlight
+    dialog = false
+    talked = false
     --music(6) -- on reset la musique 
 
 end
@@ -1113,6 +1125,17 @@ function collide_obj(p,o,distance)
          o.y<=py+p.h+d
 end
 
+function qcm()
+  rectfill(cam_x+7,cam_y+39,cam_x+121,cam_y+65,5)
+  rectfill(cam_x+8,cam_y+40,cam_x+120,cam_y+64,0)
+  if gauche then
+    print(pnj.ra,cam_x+15,cam_y+50,9)
+    print(pnj.rb,cam_x+64,cam_y+50,7)
+  else
+    print(pnj.ra,cam_x+15,cam_y+50,7)
+    print(pnj.rb,cam_x+64,cam_y+50,9)
+  end
+end
 
 __gfx__
 00000000070000000000000000000000000000000000000000000000000000000000000000000000070000000000000000000000000000000700000000777000
