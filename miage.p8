@@ -7,6 +7,7 @@ __lua__
 
 -- fonction pour reconnaitre quand une touche est enfoncé, released ...
 keys={btns={},ct={}}
+tree="cccccccccccccccccccccccccccc1015cccccccccccccccccccccccccccccccccccccccccccccccccccccccc5ccc3353c11c3ccccccccccccccccccccccccccccccccccccccccccccccccccc13333331313ccccccccccccccc3cccccccccccccccccccccccccccccccccc3331535333333331331ccccc33ccc533cccccccccccccccccccccccccc3cc333330333333333333b3333ccc3333b3533cccccccccccccccccccccccc333c33533313333310333333b331cccc3b3b3333ccccccccccccccccccccccccc33333333333330330133553333333333bbb3533cccccccccccccccccccccccc33335533bb3333b333135531333bdd3b33333333ccccccccccccccccccccccccc3b33333b33533bbb3153333103bddbbb3333333500cccccccccccccccccccccc333b333b35533b3b3333533333b33bb3530333333b33ccccccccccccccccccc33303bbbbb333333b33333bbb3353bbb33533333bbb33cccccccccccccccc3b3bb3bbbbbb5333513330033bbb313333bb333333b3bbbbbccccccccccccc333bbbbb3bb3b33b3bb131300333333553333333333b33bbb3bcccccccccccc3bbbbbbb3bb3b333bbbb3100000315303553b3531333333333333ccccccccccc3bbb3bb3bb3133353333000000000013333bbbb113bb313333333ccccccccccc33b33b33313333153330000103330011303bbb30003b3353553cccccccccccccc3333333333b3300301000013333133003bb3331001333353333ccccccccccccc003333313333103333330001333011011033330000100353353ccccccccccccc0333333313033333b3b311100033033300003303300133333333cccccccccccc33333333130333bbbb330331000300303303b333310333b333cccccccccccccc13333331010335bb35333333301110001300333335100030303ccccccccccccc0333333311333333bb333333330133130000003033333033333cccccccccccc301133031313533335bb33333331300130110005b3b31033b133ccccccccc3b3333133033331335b33b3003311331103330333011333333333bcccccccc133b33333bb0313330353b31331301013113333133331333b33333ccccccccc333bb333b333303b331133b333330003000033331133310303030333cccccccc333333b3b33010bb30003b3b303100031000030030133333303333333c3ccccc53333333311300330001333b3100000311001300000333333333333b33331cccc33303333333100000003311000001031011333330333333133333333bbb35ccccc33333113000030100100000000100300333131003bb33333333bb333bbbcccc333333313000333333000000003330000033333003333000333333333355ccc53335333330003333b3100110133330010131333000000001333333335555cccc35333300001333b3330003301333301001033300001001033331135511cccccc5333330013333333b300333310033010000000013333331113333353533ccccc55310003130333333301333310011130000330003bb3331101333333555cccc35101000331033b11330030113000011300013330333b331301130533533ccccc33b31003330513330333300010000003113333300333333331003355355cccccbccc3033331033330003000011000000313333303b3333533300301333cccccccccc1033300003133300330000130000103313303333b335333000030551ccccccc331330311030331333301313101013310030013333331133300333131ccccccc33130011013011033300133333301330000333033331133333130bc3ccccccccc3133100001000030013033330000000001100133b31003333331ccccccccccccc0031000333000000000110001310010133313333331031333331cccccccccccc0131001310011000003130313331300013301333300300103333ccccccccccc3333331000003330000300013333333110300000030000033c3ccccccccccccc1333310000013310000000033333333330000000131100030ccccccccccccccc5333300000010133000010033333333333110300003100131ccccccccccccccc333331100310011000000131000313310133333000000333333cccccccccccccc11300000115111000000031000110001133333000000133333cccccccccccccccc1000001cc110000000003100330000333333310000033335ccccccccccccccc3300013cc5103100010000033313310133333333100113333ccccccccccccccccc00033cccc110100311030013333003333333c300000131cccccccccccccccccc0013cccc330010333510000313330031133cc10000000cc3cccccccccccccccccc1cccccc13333333511310333333103331ccc31000333ccccccccccccccccccccccccccc1131c353513110030100003333ccc33133ccc3cccccccccccccccccccccccccc1cccccc3c1555100001103313ccccc3333ccccccccccccccccccccccccccccccccccccc5353110333ccc133c3cccccc1cccccccccccccccccccccccccccccccccccccccc153551cccc3ccc1c33ccccccccccccccccccccccccccccccccccccccccccccccc11311ccccccccccc1ccccccccccccccccccccccccccccccccccccccccccccccc55551ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc55155ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc55555ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc5dd55ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc56fd5ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc56fd5ccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc56fd5cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc5d6dd5cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc5d6dd5cccccccccccccccccccccccccccccccccccccccccccccccccccccccccc566d6d5ccccccccccccccccccccccccccccccccccccccccccccccccccccccc5d6ddd66d555ccccccccccccccccccccccccccccccccccccccccccccccccccc5d6d555dddddd5ccccccccccccccccccccccccccccccccccccccccccccccccc55555ccc55555555cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc"
 
 function keys:update()
   for i=0,13 do
@@ -318,6 +319,7 @@ function _draw()
     cls()
     map(0,0,0,0,128,64)
     spr(66,488,496,1,2,true)
+    string_to_sprite(tree,10,424,64,72)
     --dessine les checkpoints
     for check in all(checkpoint) do
       spr(check.sp,check.x,check.y,1,1,check.flp)
@@ -554,9 +556,14 @@ function player_update()
     plsp = 34
   end
   if collide_map(player,"left",4) and level == 1 then
-    checkpointx=8 checkpointy=296
-    player.x = 8 player.y = 296
-    level=2
+    fade()
+    if del_acc==0 then
+      checkpointx=8 checkpointy=296
+      player.x = 8 player.y = 296
+      level=2
+    else
+      del_acc-=1
+    end
   end
   --check collision left and right
   if player.dx<0 then
@@ -1007,7 +1014,7 @@ function player_reset()
     --platform volant sprite 64
     chrono=0 --sert pour animé le press x to play
     hit = false --si buffa a pris un coup
-    del_acc = 1000 -- pour creer un delay
+    del_acc = 40 -- pour creer un delay
     del_title=12
     gauche = true -- pour le qcm highlight
     dialog = false
@@ -1191,7 +1198,7 @@ function create_sqr(x,y,c)
  function fade()
   for x=1,16 do
    for y=1,16 do
-    create_sqr(x*8-8,y*8-8,rnd(15))
+    create_sqr(x*8-8,y*8-8,0)
   end
  end
 end
@@ -1201,6 +1208,30 @@ function draw_sqr(s)
 
 function lerp(a,b,t) 
   return (1-t)*a+t*b 
+ end
+
+ function string_to_sprite(s,x,y,w,h)
+  for yy=0,h-1 do
+   for xx=0,w-1 do
+    local n=0
+    local s=sub(s,xx+yy*w+1,xx+yy*w+1)
+    n=("0x"..s)+0
+    pset(x+xx,y+yy,n)
+   end
+  end
+ end
+
+ function string_to_sprite(s,x,y,w,h)
+  for yy=0,h-1 do
+   for xx=0,w-1 do
+    local n=0
+    local s=sub(s,xx+yy*w+1,xx+yy*w+1)
+    if s~="c" then
+      n=("0x"..s)+0
+      pset(x+xx,y+yy,n)
+    end
+   end
+  end
  end
 
 __gfx__
