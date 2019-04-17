@@ -940,19 +940,11 @@ function intro()
 end
 
 
-function round(var)
-  if var-flr(var)>=0.5 then
-    return ceil(var)
-  else
-    return flr(var)
-  end 
-end
-
 --dessine la croix interactive
 function drawx(dx,dy)
   print("❎",dx,dy,6)
   rectfill(dx+1,dy,dx+4,dy+3,0)
-  print("❎",dx,dy-round(time()%1.05),7)
+  print("❎",dx,dy-flr(time()%1.05),7)
 end
 
 
