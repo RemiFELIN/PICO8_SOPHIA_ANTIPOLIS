@@ -177,6 +177,7 @@ function _init()
   pnj={}
   pnjs={}
   blocs = {}
+  tree={}
   porte={
     sp=70,
     x= 953,--1001,
@@ -190,10 +191,6 @@ function _init()
     flp = false
   }
   nbr_bloc = 0
-  create_p_volant(124,61,3,108,156) 
-  create_p_volant(416,61,3,400,448)
-  create_p_volant(648,59,3,632,680)
-  create_p_volant(712,61,3,696,744)
   guitare={
     sp = 42,
     x = 848,
@@ -202,10 +199,6 @@ function _init()
     h = 8,
     anim = 0
   }
-  create_pnj("tounsi",43,70,480)
-  create_pnj("renevier",39,104,296)
-  create_pnj("ordinateur",44,864,480,16)
-  create_pnj("miranda",46,760,296)
   for i=1,200 do
     add(sparks,{
       x=0,y=0,velx=0,vely=0,
@@ -222,7 +215,7 @@ function _init()
   friction=0.8
   interaction = false
   start_bulle = false
-  checkpointx = 910 --pour memoriser le dernier checkpoint
+  checkpointx = 10 --pour memoriser le dernier checkpoint
   checkpointy = 480
   checkpoint_number = 0 --pour l'animation du checkpoint
   spnum = 0
@@ -235,7 +228,8 @@ function _init()
   onetime = false
   
   --map limits
-  map_start=0
+  mapx_start=0
+  mapy_start=0
   mapx_end=1024
   mapy_end = 512
   intro_init()
@@ -285,23 +279,18 @@ function _update()
     end
     --simple camera
     cam_x=player.x-64+(4)
-    if cam_x<map_start then
-      cam_x=map_start
+    if cam_x<mapx_start then
+      cam_x=mapx_start
     end
     if cam_x>mapx_end-128 then
       cam_x=mapx_end-128
     end
-    if level == 2 then
-      cam_y = 224
-      fille_animate()
+    cam_y=player.y-64+(player.h/2)
+    if cam_y<mapy_start then
+      cam_y=mapy_start
     else
-      cam_y=player.y-64+(player.h/2)
-      if cam_y<map_start then
-        cam_y=map_start
-      else
-        if cam_y>mapy_end-128 then
-          cam_y=mapy_end-128
-        end
+      if cam_y>mapy_end-128 then
+        cam_y=mapy_end-128
       end
     end
     foreach(blocs,update_pv)
@@ -356,17 +345,15 @@ function _draw()
     cls()
     map(0,0,0,0,128,64)
     spr(porte.sp,porte.x,porte.y,1,2,true)
-    if level ==1 then
-      --dessine les arbres
-      if (player.x < 300) then
-        str_to_spr(pin,44,464,32,32)
-      else
-        str_to_spr(pin,800,464,32,32)
-        str_to_spr(pin,895,464,32,32)
-      end
+    for tree in all(trees) do
+      str_to_spr(pin,tree.x,tree.y,32,32)
+    end
+    if level == 1 then
       ordinateur_animate()
-    elseif level == 2 then
+    end
+    if level == 2 then
       print("EXIT",1001,288,rnd(15))
+      fille_animate()
       spr(fille.sp,fille.x,fille.y,1,2,fille.flp)
     end
     --dessine les checkpoints
@@ -643,26 +630,9 @@ function player_update()
   end
   if collide_map(player,"right",4) and player.x > 950 then
     if guit_found then
-      if level == 1 then
-        droids={}
-        blocs={}
-        droid_lvl2()
-        checkpointx=8 checkpointy=296
-        player.x = 8 player.y = 296
-        level=2
-        porte.x = 1001
-        porte.y = 296
-        sfx(0)
-        reset_music()
-      elseif level == 2 then
-        droids={}
-        checkpointx=0 checkpointy=184
-        player.x = 0 player.y = 184
-        level=3
-        mapy_end = 216
-        reset_music()
-        sfx(0)
-      end
+      level += 1
+      sfx(0)
+      load_lvl()
     end
   end
   --check collision left and right
@@ -683,15 +653,6 @@ function player_update()
   elseif collide_obj(player,pnjs[2],8) then
     interaction = true
     pnj = pnjs[2]
-  elseif collide_obj(player,pnjs[3],8) then
-    interaction = true
-    pnj = pnjs[3]
-  elseif collide_obj(player,pnjs[4],8) then
-    interaction = true
-    pnj = pnjs[4]
-  -- elseif collide_obj(player,pnjs[5],8) then
-  --   interaction = true
-  --   pnj = pnjs[4]
   else
     interaction = false
   end
@@ -718,8 +679,8 @@ function player_update()
   player.y+=player.dy
 
   --limit player to map
-  if player.x<map_start then
-    player.x=map_start
+  if player.x<mapx_start then
+    player.x=mapx_start
   end
   if player.x>mapx_end-player.w then
     player.x=mapx_end-player.w
@@ -1022,14 +983,12 @@ function intro()
   end
 end
 
-
 --dessine la croix interactive
 function drawx(dx,dy)
   print("❎",dx,dy,6)
   rectfill(dx+1,dy,dx+4,dy+3,0)
   print("❎",dx,dy-flr(time()%1.05),7)
 end
-
 
 --pour faire les traits qui tourne
 function intro_init()
@@ -1146,17 +1105,8 @@ function player_reset()
     down = false,
     attak = false
     }
-    droids = {} --pour pas qu'il se cummul on les supprime et recreer a chaque mort
     projectils={}
-    --droid terrestre sprite 33
-    -- if (level == 1) then
-    --   create_droid(33,768,816,480) --dessine le sprite 33 à (110,480) se deplacant de (0,480) à (120,480)
-    --   create_droid(33,912,944,480)
-    -- end
-    --droid volant sprite 42
-    if (level == 2) then
-      droid_lvl2()
-    end
+    load_lvl()
       --platform volant sprite 64
     chrono=0 --sert pour animé le press x to play
     hit = false --si buffa a pris un coup
@@ -1313,7 +1263,12 @@ function create_p_volant(x,y,l,x1,x2)
   end
 end
 
-
+function create_tree(x,y)
+  add(trees,{
+    x = x,
+    y = y
+  })
+end
 
 function collide_obj(p,o,distance)
   local py = p.y  local d = distance or 0
@@ -1325,18 +1280,18 @@ function collide_obj(p,o,distance)
 end
 
 
- function str_to_spr(s,x,y,w,h)
-  for yy=0,h-1 do
-   for xx=0,w-1 do
-    local n=0
-    local s=sub(s,xx+yy*w+1,xx+yy*w+1)
-    if s~="a" then
-      n=("0x"..s)+0
-      pset(x+xx,y+yy,n)
-    end
-   end
+function str_to_spr(s,x,y,w,h)
+for yy=0,h-1 do
+  for xx=0,w-1 do
+  local n=0
+  local s=sub(s,xx+yy*w+1,xx+yy*w+1)
+  if s~="a" then
+    n=("0x"..s)+0
+    pset(x+xx,y+yy,n)
   end
- end
+  end
+end
+end
 
 --firework
 function firework()
@@ -1351,21 +1306,65 @@ function firework()
   end
 end
 
-function droid_lvl2()
-  create_droid(42,176,224,272,296) 
-  create_droid(42,330,360,272,296)
-  create_droid(42,350,410,272,296)
-  create_droid(42,420,460,272,296)
-  create_droid(33,270,310,296)
-  create_droid(33,660,700,296) 
-  create_droid(33,830,880,296)
-  create_droid(33,888,930,296)
-  create_droid(33,950,1000,296)
-  create_droid(42,700,740,272,296) 
-  create_droid(42,620,670,272,296)
-  create_droid(42,890,940,272,296)
-  create_droid(42,910,980,272,296)
+function load_lvl()
+  droids={}
+  blocs={}
+  pnjs={}
+  trees={}
+  nbr_bloc = 0
+  reset_music()
+  if level == 1 then
+    create_pnj("tounsi",43,70,480)
+    create_pnj("ordinateur",44,864,480,16)
+    create_tree(44,464)
+    create_tree(800,464)
+    create_tree(895,464)
+    create_p_volant(124,61,3,108,156) 
+    create_p_volant(416,61,3,400,448)
+    create_p_volant(648,59,3,632,680)
+    create_p_volant(712,61,3,696,744)
+  elseif level == 2 then
+    mapy_start = 224 
+    mapy_end = 352
+    checkpointx=8 checkpointy=296
+    player.x = 8 player.y = 296
+    porte.x = 1001
+    porte.y = 296
+    create_pnj("renevier",39,104,296)
+    create_pnj("miranda",46,760,296)
+    create_droid(42,176,224,272,296) 
+    create_droid(42,330,360,272,296)
+    create_droid(42,350,410,272,296)
+    create_droid(42,420,460,272,296)
+    create_droid(33,270,310,296)
+    create_droid(33,660,700,296) 
+    create_droid(33,830,880,296)
+    create_droid(33,888,930,296)
+    create_droid(33,950,1000,296)
+    create_droid(42,700,740,272,296) 
+    create_droid(42,620,670,272,296)
+    create_droid(42,890,940,272,296)
+    create_droid(42,910,980,272,296)
+  elseif level == 3 then
+    checkpointx=0 checkpointy=184
+    player.x = 0 player.y = 184
+    mapy_start = 0
+    mapy_end = 216
+    create_pnj("renevier",39,104,296)
+    create_pnj("miranda",46,760,296)
+  else
+    checkpointx=0 checkpointy=184
+    player.x = 0 player.y = 184
+  end
 end
+
+
+
+
+
+  
+
+
 
 
 __gfx__
