@@ -1453,7 +1453,7 @@ function load_lvl()
   nbr_bloc = 0
   reset_music()
   if level == 1 then
-    debut_lvlx=950 debut_lvly=460
+    debut_lvlx=4 debut_lvly=460
     create_pnj("tounsi",43,70,480)
     create_pnj("ordinateur",44,864,480,16)
     create_tree(44,464)
@@ -1467,7 +1467,7 @@ function load_lvl()
     mapy_start = 224 
     mapy_end = 352
     debut_lvlx=8 debut_lvly=296
-    player.x = 1000 player.y = 296
+    player.x = 8 player.y = 296
     porte.x = 1001
     porte.y = 296
     create_pnj("renevier",39,104,296)
