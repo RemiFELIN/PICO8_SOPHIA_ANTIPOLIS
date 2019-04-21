@@ -256,7 +256,7 @@ function _init()
   level=1
   flash     = false
   del_firework   = 0
-  del_fin = 250
+  del_fin = 200
   onetime = false
   
   --map limits
@@ -268,7 +268,6 @@ function _init()
   dtb_init()
   player_reset()
   --on lance la 1ere music
-  music(11)
 end
 
 -->8
@@ -280,10 +279,8 @@ function _update()
     player.sp = 78
     player.w = 16
     del_fin -= 1
-    if del_fin <= 0 then 
-      game_state = "fin" 
+    if del_fin <= 0 then game_state = "fin" end
     end
-  end
 
   if game_state == "menu" then
   skydeg += 0.0005
@@ -340,28 +337,14 @@ function _update()
     if boss_fight and boss.alive then
       boss_animate()
       boss_update()
-      --music de boss
-      if onetime == false then
-        music(17)
-        onetime = true
-      end
+      
       if collide_obj(player,boss,-2) then
         player_dead()
-      end
-    end
-    if boss.alive == false then
-      if onetime == false then
-        music(3)
-        onetime = true
       end
     end
 
   elseif game_state == "fin"  then
       cam_x = 0 cam_y = 0
-      if onetime == false then
-        music(15)
-        onetime = true
-      end
   end
 
   if not player.alive then
@@ -385,12 +368,17 @@ function reset_music()
     music(11)
   elseif level == 2 then
     music(6)
-  elseif boss_fight and boss.alive then 
-    music(17)
   elseif level == 3 then 
-    music(3)
+    if boss_fight then
+      music(17)
+    else
+      music(3)
+    end
+  else
+    music(15)
   end
 end
+
 
 function _draw()
   cls()
@@ -406,8 +394,13 @@ function _draw()
     cls()
     map(0,0,0,0,128,64)
     spr(porte.sp,porte.x,porte.y,1,2,true)
+    -- dessine en rotate bordure batiment
     spr(99,1000,488,1,1,true)
     spr(99,32,192,1,1,true)
+    for i=0,12 do
+      spr(83,32,88+i*8,1,1,true)
+      spr(83,1000,384+i*8,1,1,true)
+    end
     for tree in all(trees) do
       str_to_spr(pin,tree.x,tree.y,32,32)
     end
@@ -468,7 +461,6 @@ function _draw()
     
   elseif game_state == "fin" then
       str_to_spr(valbonne,0,0,128,128)
-      --TODO : penser à mettre un délai avant le feu d'artifice car elle fait crash la musique
       firework()
   end
 
@@ -710,10 +702,12 @@ function player_update()
   end
   if collide_obj(player,diplome,-3) then
     fin = true
-    music(13)
   end
   if player.x > 264 and level == 3 then
-    boss_fight = true
+    if not boss_fight and boss.alive then
+      boss_fight = true
+      reset_music()
+    end
   end
 
   --check collision left and right
@@ -855,10 +849,6 @@ function boss_update()
   end
   boss.y+=boss.dy
   boss.x+=boss.dx
-  --reset la musique lorsqu'il meurt 
-  if boss.alive == false then
-    music(3)
-  end
 end
 
 function guitare_animate() 
@@ -1070,8 +1060,10 @@ function projectils_update()
           hp -= 8
           boss.hit  = true
           if hp <= 13 then
-            explosion(boss.x+boss.w/2,boss.y+boss.h/2,10,250)
+            explosion(boss.x+boss.w/2,boss.y+boss.h/2,8,150)
             boss.alive = false
+            boss_fight = false
+            reset_music()
           end
         end
       end
@@ -1473,7 +1465,7 @@ function load_lvl()
   nbr_bloc = 0
   reset_music()
   if level == 1 then
-    debut_lvlx=4 debut_lvly=460
+    debut_lvlx=0 debut_lvly=460
     create_pnj("tounsi",43,70,480)
     create_pnj("ordinateur",44,864,480,16)
     create_tree(44,464)
@@ -1505,8 +1497,6 @@ function load_lvl()
     create_droid(42,620,670,272,296)
     create_droid(42,890,940,272,296)
     create_droid(42,910,980,272,296)
-    -- A NE PAS TOUCHER
-    music(3)
   elseif level == 3 then
     debut_lvlx=0 debut_lvly=184
     player.x = 0 player.y = 184
@@ -1534,10 +1524,6 @@ function draw_lifebar()
 end
 
   
-
-
-
-
 __gfx__
 00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000777000
 079777000000000000797770007977700079777000797770079777f00079ff700000000000797770000000000079777000797770007977700000000000000700
@@ -1579,14 +1565,14 @@ bbbbb3b344444444c3b3bbbccccccccc666666666666666649999994000000000000000000000000
 414144444444444433b3b3bb4644464466666666555555554999999433000000000000337700000000a0007717665cc10505004490440440000fffffffff0000
 4444444444444444cb333bbcc6ccc6cc6666666655555555499999940033000000003300007700a00000770017665cc10505050449040440000110f111f00000
 4444444444444444ccc49ccc55555555666666665d5d5d5d49999994003300000000330000770000000077001766555105050450449004400001100fff000000
-cccccccc0000000000000000ccc6556666556ccc6999999649559994000033333333000000007777777700001666666105050440044904400001111191100000
-ccc77ccc0000000000000000ccc6556666556ccc667777664999999400003333333300000000777777770000166644410505044050449040000111119aaaaaaa
-cc7777cc3333333300000000ccc6c666666c6ccc666666664999999400336333333633000077877777787700166644410505044045044900000000119a9a9a9a
-c777777cbbbbbbbb00000000ccc6c666666c6ccc666666664999999400336033330633000077807777087700166664610505044044504490000000119a9a9a9a
-77777777bbbbbbbb00000000ccc6c666666c6ccc666666664999999433336663366633337777888778887777166664610000000000000000000000111a9a9a9a
-777777773333333300000000ccc6c666666c6ccc666666664999999433333333333333337777777777777777144464610505099999999990000000111aaaaaaa
-cccccccc0000000000000000ccc6c666666c6ccc6666666649999994000000000000000000a0000000a000001444646105050444444444400000001111100000
-cccccccc0000000000000000ccc6c666666c6ccc6666666644444444000000000000000000000a0000000a001555555100000000000000000000004444400000
+cccccccc0000000000000000ccc65566089aa9806999999649559994000033333333000000007777777700001666666105050440044904400001111191100000
+ccc77ccc0000000000000000ccc65566089aa980667777664999999400003333333300000000777777770000166644410505044050449040000111119aaaaaaa
+cc7777cc3333333300000000ccc6c666089aa980666666664999999400336333333633000077377777737700166644410505044045044900000000119a9a9a9a
+c777777cbbbbbbbb00000000ccc6c666089aa980666666664999999400336033330633000077307777037700166664610505044044504490000000119a9a9a9a
+77777777bbbbbbbb00000000ccc6c666089aa980666666664999999433336663366633337777333773337777166664610000000000000000000000111a9a9a9a
+777777773333333300000000ccc6c666889aa988666666664999999433333333333333337777777777777777144464610505099999999990000000111aaaaaaa
+cccccccc0000000000000000ccc6c666899aa9986666666649999994000000000000000000a0000000a000001444646105050444444444400000001111100000
+cccccccc0000000000000000ccc6c66689aaaa986666666644444444000000000000000000000a0000000a001555555100000000000000000000004444400000
 00999999bbbbbbbbccccccccccc6c666cccccccc444444444444444400000000000000000000000000000000000000001111111111111111111110111ddddddd
 00900009bbbbb3b3ccccccccccc6c666cccccccc44444444444444440a0990000a000000000000000000000000000000d11111d9d11111d9111110111ddddddd
 009999993b3bb333ccccccccccc65566cccccccc7555557ddddddddd0009900000090a000006600000060000000000001111111911111119111111011ddddddd
@@ -1905,4 +1891,3 @@ __music__
 44 44444444
 44 44444444
 44 44444444
-
