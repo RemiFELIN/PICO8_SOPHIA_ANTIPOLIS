@@ -208,12 +208,10 @@ function _init()
   boss={
     sp = 71,
     x = 320,
-    y = 127,
+    y = 129,
     h = 16,
     w = 16,
     anim = 0,
-    proj = 81,
-    v = 2,
     zonex1=264,
     zonex2=432,
     zoney1=128,
@@ -224,7 +222,8 @@ function _init()
     acc=0.5,
     flp = false,
     hit = flase,
-    alive = true
+    alive = true,
+    mode = "fly"
   }
   for i=1,200 do
     add(sparks,{
@@ -257,6 +256,7 @@ function _init()
   flash     = false
   del_firework   = 0
   del_fin = 200
+  del_boss = 100
   onetime = false
   
   --map limits
@@ -832,8 +832,12 @@ function boss_update()
   --movement
   if boss.flp then
     boss.dx-=boss.acc*rnd(5)*0.5
+    boss.mode = "fire"
+    boss.dy = 0
   else
     boss.dx+=boss.acc*rnd(5)*0.5
+    boss.mode = "fly"
+    boss.dy += 0.005
   end
   if boss.x < boss.zonex1  then
     boss.flp = false
@@ -842,10 +846,10 @@ function boss_update()
     boss.flp = true
   end
   if boss.y < boss.zoney1 then
-    boss.dy +=0.05 *rnd(5)
+    boss.dy +=0.5
   end
   if boss.y > boss.zoney2 then
-    boss.dy -=0.05 *rnd(5)
+    boss.dy -=0.5
   end
   boss.y+=boss.dy
   boss.x+=boss.dx
@@ -999,19 +1003,21 @@ function boss_animate()
     boss.hit = false
     boss.anim=time()
   else
-    if del_boss > 12 then
-      del_boss -=1
-      if time()-boss.anim>.3 then
-        boss.anim=time()
-        boss.sp+=2
-        if boss.sp>73 then
-          boss.sp=71
-        end
-      end
-    else
-      boss.anim=time()
+    del_boss -= 1
+    if del_boss <= 0 then
+      del_boss = rnd(100)
+    end
+    if del_boss <= 25 and boss.mode == "fire" then
       boss.sp = 103
-      del_boss = 50
+      add_projectil(boss)
+    else
+        if time()-boss.anim>.3 then
+          boss.anim=time()
+          boss.sp+=2
+          if boss.sp>73 then
+            boss.sp=71
+          end
+        end
     end
   end
 end
@@ -1043,50 +1049,62 @@ end
 
 function projectils_update()
   for projectil in all(projectils) do
-    if projectil.flp then
-      projectil.x -= projectil.v
+    if projectil.sp == 84 then
+      projectil.y += 2
+      projectil.x = boss.x + 3
     else
-      projectil.x += projectil.v
+      if projectil.flp then
+        projectil.x -= projectil.v
+      else
+        projectil.x += projectil.v
+      end
     end
     if boss_fight then
-      if collide_obj(projectil,boss)
-      or projectil.x > cam_x+128
-      or projectil.x <  cam_x-8
-      or (collide_obj(player,projectil,-1) and projectil.sp == 81) then
+      if  collide_map(projectil,"up",0)
+      or (collide_obj(player,projectil,-1) and projectil.sp == 84)
+      or (collide_obj(projectil,boss) and projectil.sp == 96) then
         del(projectils,projectil)
-        if collide_obj(projectil,boss) then
+        if collide_obj(projectil,boss) and projectil.sp == 96 then
           sfx(1)
           explosion(projectil.x,projectil.y,2,100)
           hp -= 8
           boss.hit  = true
           if hp <= 13 then
-            explosion(boss.x+boss.w/2,boss.y+boss.h/2,8,150)
+            sfx(1)
+            explosion(boss.x+4,boss.y+boss.h/2,8,150)
             boss.alive = false
             boss_fight = false
             reset_music()
           end
         end
-      end
-    end
-
-    for droid in all(droids) do
-      --check collision des projectils
-      if  collide_map(projectil,"right")
-      or collide_map(projectil,"left")
-      or (collide_obj(projectil,droid) and projectil.sp == 96)
-      or (collide_obj(player,projectil,-1) and projectil.sp == 81)
-      or projectil.x > cam_x+128
-      or projectil.x <  cam_x-8 then
-        del(projectils,projectil)
-        if (collide_obj(projectil,droid) and projectil.sp == 96) then
-          explosion(droid.x,droid.y,droid.w/4+1,100)
-          del(droids,droid)
-          sfx(1)
-        elseif collide_obj(player,projectil,-1) and projectil.sp == 81 then
+        if collide_obj(player,projectil,-1) and projectil.sp == 84 then
           player_dead()
-        elseif collide_map(projectil,"left") or collide_map(projectil,"right") then
-          explosion(projectil.x,projectil.y,2,100)
-          sfx(1)
+        end
+        if collide_map(projectil,"up",0) then
+          explosion(projectil.x,projectil.y,3,100)
+        end
+      end
+    else 
+
+      for droid in all(droids) do
+        --check collision des projectils
+        if  collide_map(projectil,"right")
+        or collide_map(projectil,"left")
+        or (collide_obj(projectil,droid) and projectil.sp == 96)
+        or (collide_obj(player,projectil,-1) and projectil.sp == 81)
+        or projectil.x > cam_x+128
+        or projectil.x <  cam_x-8 then
+          del(projectils,projectil)
+          if (collide_obj(projectil,droid) and projectil.sp == 96) then
+            explosion(droid.x,droid.y,droid.w/4+1,100)
+            del(droids,droid)
+            sfx(1)
+          elseif collide_obj(player,projectil,-1) and projectil.sp == 81 then
+            player_dead()
+          elseif collide_map(projectil,"left") or collide_map(projectil,"right") then
+            explosion(projectil.x,projectil.y,2,100)
+            sfx(1)
+          end
         end
       end
     end
@@ -1261,7 +1279,6 @@ function player_reset()
     hit = false --si buffa a pris un coup
     del_acc = 0 -- pour creer un delay
     del_droid = 3
-    del_boss = 50
     del_title=12
     hp = 125
     gauche = true -- pour le qcm highlight
@@ -1276,15 +1293,26 @@ function add_projectil(emeteur)
   else
     emx = emeteur.x
   end
-  add(projectils,{
-    sp = emeteur.proj,
-    x = emx,
-    y = emeteur.y,
-    w = 8, -- besoin de sa largeur et hauteur pour collide map
-    h = 6,
-    flp = emeteur.flp,
-    v = emeteur.v
-  })
+  if emeteur == boss then
+    add(projectils,{
+      sp = 84,
+      x = boss.x + 3,
+      y = boss.y + boss.h,
+      w = 6,
+      h = 8,
+      flp = false
+    })
+  else
+    add(projectils,{
+      sp = emeteur.proj,
+      x = emx,
+      y = emeteur.y,
+      w = 8, -- besoin de sa largeur et hauteur pour collide map
+      h = 6,
+      flp = emeteur.flp,
+      v = emeteur.v
+    })
+  end
 end
 
 --creer les particules
@@ -1465,7 +1493,7 @@ function load_lvl()
   nbr_bloc = 0
   reset_music()
   if level == 1 then
-    debut_lvlx=0 debut_lvly=460
+    debut_lvlx=870 debut_lvly=460
     create_pnj("tounsi",43,70,480)
     create_pnj("ordinateur",44,864,480,16)
     create_tree(44,464)
@@ -1479,7 +1507,7 @@ function load_lvl()
     mapy_start = 224 
     mapy_end = 352
     debut_lvlx=8 debut_lvly=296
-    player.x = 8 player.y = 296
+    player.x = 1000 player.y = 296
     porte.x = 1001
     porte.y = 296
     create_pnj("renevier",39,104,296)
@@ -1570,9 +1598,9 @@ ccc77ccc0000000000000000ccc65566089aa9806677776649999994000033333333000000007777
 cc7777cc3333333300000000ccc6c666089aa980666666664999999400336333333633000077377777737700166644410505044045044900000000119a9a9a9a
 c777777cbbbbbbbb00000000ccc6c666089aa980666666664999999400336033330633000077307777037700166664610505044044504490000000119a9a9a9a
 77777777bbbbbbbb00000000ccc6c666089aa980666666664999999433336663366633337777333773337777166664610000000000000000000000111a9a9a9a
-777777773333333300000000ccc6c666889aa988666666664999999433333333333333337777777777777777144464610505099999999990000000111aaaaaaa
-cccccccc0000000000000000ccc6c666899aa9986666666649999994000000000000000000a0000000a000001444646105050444444444400000001111100000
-cccccccc0000000000000000ccc6c66689aaaa986666666644444444000000000000000000000a0000000a001555555100000000000000000000004444400000
+777777773333333300000000ccc6c666089aa980666666664999999433333333333333337777777777777777144464610505099999999990000000111aaaaaaa
+cccccccc0000000000000000ccc6c666089aa9806666666649999994000000000000000000a0000000a000001444646105050444444444400000001111100000
+cccccccc0000000000000000ccc6c666089aa9806666666644444444000000000000000000000a0000000a001555555100000000000000000000004444400000
 00999999bbbbbbbbccccccccccc6c666cccccccc444444444444444400000000000000000000000000000000000000001111111111111111111110111ddddddd
 00900009bbbbb3b3ccccccccccc6c666cccccccc44444444444444440a0990000a000000000000000000000000000000d11111d9d11111d9111110111ddddddd
 009999993b3bb333ccccccccccc65566cccccccc7555557ddddddddd0009900000090a000006600000060000000000001111111911111119111111011ddddddd
@@ -1891,3 +1919,4 @@ __music__
 44 44444444
 44 44444444
 44 44444444
+
