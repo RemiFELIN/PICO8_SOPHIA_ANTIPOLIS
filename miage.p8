@@ -421,11 +421,28 @@ function _draw()
     end
     if level == 1 then
       ordinateur_animate()
+      if player.x < 50 then 
+        rectfill(cam_x+2,cam_y+10,cam_x+126,cam_y+35,7) --cadre blanc
+        rectfill(cam_x+3,cam_y+11,cam_x+125,cam_y+34,0) --cadre noir
+        print("parc de la valmasque",cam_x+25,cam_y+20,7)
+      end
     end
     if level == 2 then
+      if player.x < 50 then   
+        rectfill(cam_x+2,cam_y+10,cam_x+126,cam_y+35,7) --cadre blanc
+        rectfill(cam_x+3,cam_y+11,cam_x+125,cam_y+34,0) --cadre noir
+        print("qg de cgi",cam_x+45,cam_y+20,7)
+      end
       print("EXIT",1001,288,rnd(15))
       fille_animate()
       spr(fille.sp,fille.x,fille.y,1,2,fille.flp)
+    end
+    if level == 3 then 
+      if player.x < 50 then 
+        rectfill(cam_x+2,cam_y+2,cam_x+126,cam_y+20,7) --cadre blanc
+        rectfill(cam_x+3,cam_y+3,cam_x+125,cam_y+19,0) --cadre noir
+        print("repere du vil z-rasberry",cam_x+15,cam_y+10,7)
+      end
     end
     if boss_fight and boss.alive then
       draw_lifebar()
