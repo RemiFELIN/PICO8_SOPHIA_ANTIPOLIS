@@ -638,7 +638,7 @@ function dialog_draw()
       dtb_disp("miranda: sort de ce batiment, il se trouve plus a l\'est !")
       dtb_disp("mich: comment je peux m\'y prendre ?")
       dtb_disp("miranda: comme tous les droids, il a un defaut au niveau de la carte son ... bonne chance !")
-	  dtb_disp("mich: merci beaucoup !")
+	    dtb_disp("mich: merci beaucoup !")
       talked = true
     end
     if pnj.name=="laffitte2" then
