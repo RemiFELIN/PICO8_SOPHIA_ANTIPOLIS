@@ -629,7 +629,7 @@ function dialog_draw()
     if pnj.name=="ordinateur" then
       dtb_disp("mich: cette machine a l\'air agressive, je vais la bidouiller un peu...")
       dtb_disp("mich utilise ses competences en shell pour pirater l'ordinateur")
-      dtb_disp("ordinateur: tuer tous les humai... hmm hmm...appuyez sur \"c\" pour lancer une attaque sonore.")
+      dtb_disp("ordinateur: tuer tous les humai... hmm hmm...appuyez sur \142 pour lancer une attaque sonore.")
       talked = true
     end
     if pnj.name=="miranda" then
