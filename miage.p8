@@ -403,7 +403,7 @@ function _draw()
 
   elseif game_state == "plot" then
     rectfill(0,500,127,127,1)
-    print("la technopole fete ses 50 ans.\n\ncgi a mis a au point\n\nrasberry-pie, une ia\n\nrevolutionnaire, qui a\n\nechappe a leur controle et\n\npris possession de tout\n\nsophia-antipolis.\n\nl\'ingenieur mich s\'invite a la\nfete...", 8, 388, 7)
+    print("la technopole de fete ses\n\n50 ans !\n\ncgi a mis a au point\n\nrasberry-pie, une ia\n\nrevolutionnaire, qui a\n\nechappe a leur controle et\n\npris possession de\n\nsophia.\n\nl\'ingenieur mich s\'invite a la\n\nfete...", 8, 378, 7)
 
   elseif game_state == "game"   then
     cls()
@@ -613,8 +613,8 @@ function dialog_draw()
     end
   else
     music(1) -- on active la musique
-    if pnj.name=="renevier" then
-      dtb_disp("dEVoPS:ah vous voila enfin ! ces androids mettent sont en train de détruire nos locaux c\'est la panique !")
+    if pnj.name=="stagiaire" then
+      dtb_disp("le stagiaire:ah vous voila enfin ! ces androids detruisent nos locaux c\'est la panique !")
       talked = true
       -- pas toucher
       pnj_speak = true
@@ -1557,7 +1557,7 @@ function load_lvl()
     player.x = 0 player.y = 296
     porte.x = 1001
     porte.y = 296
-    create_pnj("renevier",39,104,296)
+    create_pnj("stagiaire",39,104,296)
     create_pnj("miranda",46,760,296)
     create_droid(42,176,224,272,296) 
     create_droid(42,330,360,272,296)
@@ -1578,7 +1578,7 @@ function load_lvl()
     mapy_start = 0
     mapy_end = 216
     mapx_end = 440
-    create_pnj("renevier",39,104,296)
+    create_pnj("stagiaire",39,104,296)
     create_pnj("miranda",46,760,296)
     create_pv(7,13,22) 
     create_pv(7,13,14)
