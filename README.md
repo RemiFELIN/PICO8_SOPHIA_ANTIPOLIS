@@ -1,4 +1,4 @@
-Mich's Symphony
+Sophia Symphony
 ===============
 
 Notre projet est un jeu développé sous PICO 8 (language LUA) dans le cadre d'un concours de programmation organisé par CGI, ayant pour thème **_les 500 ans de Valbonne et les 50 ans de Sophia-Antipolis_**.
