@@ -820,10 +820,10 @@ function droid_update()
   for droid in all(droids) do
     droid.dx=limit_speed(droid.dx,droid.max_dx)
     if droid.w == 16 then
-      del_droid -= 1
-      if del_droid < 15 then
+      droid.del_droid -= 1
+      if droid.del_droid < 15 then
         droid.dx = 0
-        if del_droid < 7 and del_droid > 2 then
+        if droid.del_droid < 7 and droid.del_droid > 2 then
           add_projectil(droid)
         end
       else
@@ -842,8 +842,8 @@ function droid_update()
         end
         droid.x+=droid.dx
       end  
-      if del_droid < 0 then
-        del_droid = 100
+      if droid.del_droid < 0 then
+        droid.del_droid = 80
       end
     else
       droid.dx*=friction
@@ -1022,7 +1022,7 @@ end
 function droid_animate()
   for droid in all(droids) do
     if droid.w == 16 then
-      if del_droid > 12 then
+      if droid.del_droid > 12 then
         if time()-droid.anim>.2 then
           droid.anim=time()
           droid.sp+=2
@@ -1327,7 +1327,6 @@ function player_reset()
     chrono=0 --sert pour animé le press x to play
     hit = false --si buffa a pris un coup
     del_acc = 0 -- pour creer un delay
-    del_droid = 3
     del_title=12
     hp = 125
     gauche = true -- pour le qcm highlight
@@ -1423,7 +1422,8 @@ function create_droid(type,zx1,zx2,zy1,zy2)
       zonex1 = zx1, --zone ou il vagabonde entre zonex1 et zonex2
       zonex2 = zx2,
       proj = 81,
-      v = 3.5
+      del_droid = 100,
+      v = 2.5
     })
   else
     add(droids,{
@@ -1566,12 +1566,12 @@ function load_lvl()
     create_droid(42,350,410,272,296)
     create_droid(42,420,460,272,296)
     create_droid(33,270,310,296)
-    create_droid(33,660,700,296) 
+    create_droid(33,668,700,296) 
     create_droid(33,830,880,296)
     create_droid(33,888,930,296)
     create_droid(33,960,1000,296)
-    create_droid(42,700,740,272,296) 
     create_droid(42,620,670,272,296)
+    create_droid(42,680,720,272,296) 
     create_droid(42,890,940,272,296)
     create_droid(42,910,980,272,296)
   elseif level == 3 then
