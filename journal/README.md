@@ -6,7 +6,7 @@ Composition de l’équipe et reflexion sur le type de jeu.
 
 ## 30 mars
 
-Décidé sur un jeu de platforme, nous avons commencé notre premier prototype de jeu sans aucune base sur la language lua et sur le logiciel pico-8. Ce ![tutoriel](https://youtu.be/q6c6DvGK4lg) fut donc très utile. On a très vite compris qu’il serait compliqué de coder via l’interface de pico-8. Nous avons donc choisis d’utiliser *Pico-8 VSCode Plugin* pour coder le jeu via *Visual Studio Code*, d'autant plus que nous sommes déjà familier avec cette editeur.
+Décidé sur un jeu de platforme, nous avons commencé notre premier prototype de jeu sans aucune base sur la language lua et sur le logiciel pico-8. Ce [tutoriel](https://youtu.be/q6c6DvGK4lg) fut donc très utile. On a très vite compris qu’il serait compliqué de coder via l’interface de pico-8. Nous avons donc choisis d’utiliser *Pico-8 VSCode Plugin* pour coder le jeu via *Visual Studio Code*, d'autant plus que nous sommes déjà familier avec cette editeur.
 
 ## 31 mars
 
