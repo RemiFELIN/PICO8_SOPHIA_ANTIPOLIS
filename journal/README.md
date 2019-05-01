@@ -1,5 +1,7 @@
 # Notre journal de bord
 
+L'évolution détaillé de notre projet est disponible dans notre git : [cliquez ici](https://github.com/RemiFELIN/PICO8_SOPHIA_ANTIPOLIS) 
+
 ## 28 mars
 
 Composition de l’équipe et reflexion sur le type de jeu.
