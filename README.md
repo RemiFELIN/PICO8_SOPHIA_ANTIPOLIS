@@ -1,19 +1,19 @@
-bubufafa's Symphony
-==============
+Mich's Symphony
+===============
 
 Notre projet est un jeu développé sous PICO 8 (language LUA) dans le cadre d'un concours de programmation organisé par CGI, ayant pour thème **_les 500 ans de Valbonne et les 50 ans de Sophia-Antipolis_**.
 
 ## Présentation des équipes
 
--  ![Céline MARIN](https://github.com/CelineMarin)
+-  [Céline MARIN](https://github.com/CelineMarin)
 
--  ![Yannick CARDINI](https://github.com/YannickCardini)
+-  [Yannick CARDINI](https://github.com/YannickCardini)
 
--  ![Rémi FELIN](https://github.com/RemiFELIN)
+-  [Rémi FELIN](https://github.com/RemiFELIN)
 
 ## Nos rôles  
 
-- Yannick : *développeur du moteur *
+- Yannick : *développeur du moteur*
 - Céline : *création de la map et des sprites - histoire*
 - Rémi : *création de musiques et des bruitages - histoire*
 
@@ -39,7 +39,7 @@ Cette machine a été programmé par CGI, elle est redoutablement efficace et es
 
 ## Notre gestion de projet 
 
-### Notre GIT : cliquez ![ici](https://github.com/RemiFELIN/PICO8_SOPHIA_ANTIPOLIS)
-### Notre journal de bord : cliquez ![ici](https://github.com/RemiFELIN/PICO8_SOPHIA_ANTIPOLIS/journal)
+### Notre GIT : cliquez [ici](https://github.com/RemiFELIN/PICO8_SOPHIA_ANTIPOLIS)
+### Notre journal de bord : cliquez [ici](https://github.com/RemiFELIN/PICO8_SOPHIA_ANTIPOLIS/tree/master/journal)
 
    
