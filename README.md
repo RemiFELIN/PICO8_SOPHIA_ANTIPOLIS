@@ -37,6 +37,11 @@ Egalement passionné de musique, il va vite s'apercevoir que sa guitare a un pou
 
 Cette machine a été programmé par CGI, elle est redoutablement efficace et est capable de se défendre !  Le bruit court qu'elle aurait une légère faille dans son système... **à vous de trouver sa faille, de le retrouver et de le détruire !**
 
+## Remerciement
+
+La fonction de dialog provient d'un snippet qui a été partagé sur lexaloffle, lien du threah [ici](https://www.lexaloffle.com/bbs/?pid=35126).
+Les fonctions de base qui s'occupent de gérer les événements de touche (btn et btnp) ne sont pas assez varié pour nos besoins ( touche enfoncée, touche relâche...). Nous avons donc utilisé un code partagé par l'utilisateur "kjaegers" de lexaloffle pour gérer nos événements de touche. Voir [ici](https://www.lexaloffle.com/bbs/?tid=3367) l'Extended Keyboard Handler que nous avons utilisé pour notre jeu.
+
 # Notre gestion de projet 
 
 ## Notre GIT : cliquez [ici](https://github.com/RemiFELIN/PICO8_SOPHIA_ANTIPOLIS)
