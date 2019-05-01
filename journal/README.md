@@ -15,13 +15,14 @@ Ca y est, nous sommes déjà accro ! on enchaine très vite les lignes de code e
 ## 8 avril
 
 On utilise plusieurs sprite pour l’animation de notre héros, des sprite de 1 en largeur et 2 en hauteur. On réalise qu’il serait plus intelligent de recycler les sprites identiques de notre héros, comme par exemple en deux:
+
 ![sprites](https://image.noelshack.com/fichiers/2019/18/3/1556709869-sprites.png)
 
 Cela implique de faire une refonte du moteur de jeu (gestion des collisions, lancement des projectils, animation du heros, physique du personnage avec la map...). Etant donné le peu de temps qu’il nous reste et la charge de travail que nous avons en dehors du projet, nous avons du mettre cette optimisation de sprite de côté.
 
 ## 16 avril
 
-On se rend vite compte de la limite en taille qu’impose pico-8. En cherchant un peu sur le forum du site ![lexaloffle](https://www.lexaloffle.com), on découvre une méthode pour compresser les images que nous avons insérer en tant que “code”. Après l’avoir bien modifié à notre sauce (voir annexe), on se rend compte qu’elle nous fait gagner quelques tokens mais rend la compression en png plus lourde et est donc unitilisable. On supprime donc quelques une de nos images et appliquons d’autres méthodes d’optimisations afin de continuer/finir le jeu.
+On se rend vite compte de la limite en taille qu’impose pico-8. En cherchant un peu sur le forum du site [lexaloffle](https://www.lexaloffle.com), on découvre une méthode pour compresser les images que nous avons insérer en tant que “code”. Après l’avoir bien modifié à notre sauce (voir annexe), on se rend compte qu’elle nous fait gagner quelques tokens mais rend la compression en png plus lourde et est donc unitilisable. On supprime donc quelques une de nos images et appliquons d’autres méthodes d’optimisations afin de continuer/finir le jeu.
 
 ## 19 avril
 
