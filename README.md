@@ -19,6 +19,10 @@ Notre projet est un jeu développé sous PICO 8 (language LUA) dans le cadre d'u
 
 # Notre jeu
 
+## Démonstration en vidéo (speedrun)
+
+Veuillez cliquer [ici](https://www.youtube.com/watch?v=AKFChtQwpHA&feature=youtu.be) !
+
 ## Scénario
 
 La technopole de Nice Sophia-Antipolis va bientôt fêté ses 50 ans, de même que la ville de Valbonne va fêté ses 500 ans.
@@ -28,9 +32,14 @@ A cette occasion, CGI a voulu présenter sa nouvelle innovation sur le marché :
 ## Mich : notre héros principal
 ![Mich](https://image.noelshack.com/fichiers/2019/18/3/1556706057-mich.png)
 
-L'ingénieur **_Mich_**, illustre informaticien et maître incontesté en JavaScript, va parcourir la technopôle a la recherche de Raspberry PIE, il rencontrera sur son chemin de nombreux sbires obéissant aux ordres de Raspberry PIE.
+L'ingénieur **_Mich_**, illustre informaticien et maître incontesté en JavaScript, va parcourir la technopôle a la recherche de Z-, il rencontrera sur son chemin de nombreux sbires obéissant aux ordres de Raspberry PIE.
 
 Egalement passionné de musique, il va vite s'apercevoir que sa guitare a un pouvoir extraordinaire contre les sbires... **aidez Mich à trouver sa guitare au plus vite !**
+
+## Raspberry PIE (renommé "Z-Rasberry" après sa prise de pouvoir !)
+![croquis](https://image.noelshack.com/fichiers/2019/18/3/1556705607-57284555-840645582943220-6327072261115215872-n.jpg) 
+
+Cette machine a été programmé par CGI, elle est redoutablement efficace et est capable de se défendre !  Le bruit court qu'elle aurait une légère faille dans son système... **à vous de trouver sa faille, de le retrouver et de le détruire !**
 
 ## Les touches
 - Le personnage principal peut se déplacer à droite ou à gauche à l'aide des touches directionnelles droites → et gauche ←.
@@ -38,11 +47,6 @@ Egalement passionné de musique, il va vite s'apercevoir que sa guitare a un pou
 - Il peut se baisser avec la touche directionnelle ↓ pour éviter les projectiles des ennemies.
 - Pour passer les dialogues et interagir avec les autres personnages appuyer sur la touche X (touche X / V / M sur le clavier)
 - Pour lancer une attaque sonore ( une fois la guitare recupéré ) appuyer sur la touche O (touche Z / C / N  sur le clavier)
-
-## Raspberry PIE
-![croquis](https://image.noelshack.com/fichiers/2019/18/3/1556705607-57284555-840645582943220-6327072261115215872-n.jpg) 
-
-Cette machine a été programmé par CGI, elle est redoutablement efficace et est capable de se défendre !  Le bruit court qu'elle aurait une légère faille dans son système... **à vous de trouver sa faille, de le retrouver et de le détruire !**
 
 ## Remerciement
 
