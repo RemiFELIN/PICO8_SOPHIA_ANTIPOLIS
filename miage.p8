@@ -618,8 +618,6 @@ function dialog_draw()
       dtb_disp("stagiaire: ah vous voila enfin ! ces androids detruisent nos locaux c\'est la panique !")
 	  dtb_disp("mich: est-ce que tu peux m\'aider ?")
 	  dtb_disp("stagiaire: euh...j\'ai trop peur ! allez sauver mon patron il est au bout du couloir !")
-	  dtb_disp("stagiaire: aaaaaaah!")
-	  dtb_disp("mich: ...wow")
       talked = true
       -- pas toucher
       pnj_speak = true
@@ -644,8 +642,9 @@ function dialog_draw()
       talked = true
     end
     if pnj.name=="laffitte2" then
-      dtb_disp("laffitte: ah te voila enfin mich! depeche toi de recuperer ta cle numerique de la ville !")
-      dtb_disp("mich: merci beaucoup monsieur ! c/'est un honneur d/'avoir sauve servi la ville et la technopole !")
+      dtb_disp("laffitte: te voila mon amis ! ton contrat officiel t\'attend ! tu es maintenant parmis les plus grand de sophia-antipolis, tu l\'as bien merite !")
+      dtb_disp("mich: merci beaucoup monsieur ! c\'est un honneur d\'avoir servi la ville et la technopole !")
+	  dtb_disp("laffite: n'oublie pas d'attendre la fin de la ceremonie pour admirer le feu d'artifice en l\'honneur de valbonne et de sophia-antipolis")
       talked = true
     end
     if pnj.name == "porte" then
