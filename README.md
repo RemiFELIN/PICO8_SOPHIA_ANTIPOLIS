@@ -32,6 +32,13 @@ L'ingénieur **_Mich_**, illustre informaticien et maître incontesté en JavaSc
 
 Egalement passionné de musique, il va vite s'apercevoir que sa guitare a un pouvoir extraordinaire contre les sbires... **aidez Mich à trouver sa guitare au plus vite !**
 
+## Les touches
+- Le personnage principal peut se déplacer à droite ou à gauche à l'aide des touches directionnelles droites → et gauche ←.
+- Il peut sauter avec la touche directionnelle ↑ et peut aussi effectuer un double saut en réappuyant sur la touche directionnelle ↑.
+- Il peut se baisser avec la touche directionnelle ↓ pour éviter les projectiles des ennemies.
+- Pour passer les dialogues et interagir avec les autres personnages appuyer sur la touche X (touche X / V / M sur le clavier)
+- Pour lancer une attaque sonore ( une fois la guitare recupéré ) appuyer sur la touche O (touche Z / C / N  sur le clavier)
+
 ## Raspberry PIE
 ![croquis](https://image.noelshack.com/fichiers/2019/18/3/1556705607-57284555-840645582943220-6327072261115215872-n.jpg) 
 
