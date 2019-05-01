@@ -39,8 +39,8 @@ Cette machine a été programmé par CGI, elle est redoutablement efficace et es
 
 ## Remerciement
 
-La fonction de dialog provient d'un snippet qui a été partagé sur lexaloffle, lien du threah [ici](https://www.lexaloffle.com/bbs/?pid=35126).
-Les fonctions de base qui s'occupent de gérer les événements de touche (btn et btnp) ne sont pas assez varié pour nos besoins ( touche enfoncée, touche relâche...). Nous avons donc utilisé un code partagé par l'utilisateur "kjaegers" de lexaloffle pour gérer nos événements de touche. Voir [ici](https://www.lexaloffle.com/bbs/?tid=3367) l'Extended Keyboard Handler que nous avons utilisé pour notre jeu.
+- La fonction de dialog provient d'un snippet qui a été partagé sur lexaloffle, lien du threah [ici](https://www.lexaloffle.com/bbs/?pid=35126).
+- Les fonctions de base qui s'occupent de gérer les événements de touche (btn et btnp) ne sont pas assez varié pour nos besoins ( touche enfoncée, touche relâche...). Nous avons donc utilisé un code partagé par l'utilisateur "kjaegers" de lexaloffle pour gérer nos événements de touche. Voir [ici](https://www.lexaloffle.com/bbs/?tid=3367) l'Extended Keyboard Handler que nous avons utilisé pour notre jeu.
 
 # Notre gestion de projet 
 
