@@ -403,7 +403,7 @@ function _draw()
 
   elseif game_state == "plot" then
     rectfill(0,500,127,127,1)
-    print("michel buffa a ajourd'hui \n\n50 ans et comme cadeau\n\nd'anniversaire michel reve\n\nd'etre enfin diplome a\n\nsophia antipolis.\n\nprofitons de la pagaille\n\nactuelle pour y arriver.",8,388,7)
+    print("la technopole fete ses 50 ans.\n\ncgi a mis a au point\n\nrasberry-pie, une ia\n\nrevolutionnaire, qui a\n\nechappe a leur controle et\n\npris possession de tout\n\nsophia-antipolis.\n\nl\'ingenieur mich s\'invite a la\nfete...", 8, 388, 7)
 
   elseif game_state == "game"   then
     cls()
@@ -614,21 +614,19 @@ function dialog_draw()
   else
     music(1) -- on active la musique
     if pnj.name=="renevier" then
-      dtb_disp("buffa:tiens qui voila, mister renevier.")
-      dtb_disp("renevier:michel aide moi ! j'ai perdu le controle de mon android studio ! c'est la panique.")
-      dtb_disp("buffa:pff...pathetique.")
+      dtb_disp("dEVoPS:ah vous voila enfin ! ces androids mettent sont en train de détruire nos locaux c\'est la panique !")
       talked = true
       -- pas toucher
       pnj_speak = true
     end
-    if pnj.name=="tounsi" then
-      dtb_disp("buffa:bonjour president.")
-      dtb_disp("tric:bonjour michel il parait que tu aimes la musique ? la clef de l'excellence c'est de savoir se diversifier !")
-      dtb_disp("buffa:...euh...ok")
+    if pnj.name=="laffitte" then
+      dtb_disp("laffitte:cette machine a vraiment mis la pagaille dans sophia... de l\'autre cote du terrain il y a un ordinateur plutot louche...")
       talked = true
     end
     if pnj.name=="ordinateur" then
-      dtb_disp("ordinateur:tuer tout les huma... hmm hmm...appuyez sur \142 pour lancer une attaque sonore.")
+      dtb_disp("mich : cette machine a l\'air agressive, je vais la bidouiller un peu...")
+      dtb_disp("mich utilise ses competences en shell pour pirater l'ordinateur")
+      dtb_disp("ordinateur:tuer tous les humai... hmm hmm...appuyez sur \"c\" pour lancer une attaque sonore.")
       talked = true
     end
     if pnj.name=="miranda" then
@@ -639,8 +637,8 @@ function dialog_draw()
       dtb_disp("miranda:ah tu sais pour moi tout est tuples.")
       talked = true
     end
-    if pnj.name=="tric" then
-      dtb_disp("tric:ah te voila enfin mich! depeche toi de recuperer ton diplome.")
+    if pnj.name=="laffitte2" then
+      dtb_disp("laffitte:ah te voila enfin mich! depeche toi de recuperer ton diplome.")
       dtb_disp("buffa:merci president,j'aimerais apres vous dire deux mots au sujet de renevier.")
       talked = true
     end
@@ -1543,7 +1541,7 @@ function load_lvl()
   reset_music()
   if level == 1 then
     debut_lvlx=0 debut_lvly=460
-    create_pnj("tounsi",43,70,480)
+    create_pnj("laffitte",43,70,480)
     create_pnj("ordinateur",44,864,480,16)
     create_tree(44,464)
     create_tree(800,464)
@@ -1587,7 +1585,7 @@ function load_lvl()
     create_droid(42,48,96,112,176)
     create_droid(33,112,128,64)
   else
-    create_pnj("tric",43,696,104)
+    create_pnj("laffitte2",43,696,104)
     create_pnj("miranda",46,760,296)
     mapx_end = 1024
     player.x = 632 player.y = 104
