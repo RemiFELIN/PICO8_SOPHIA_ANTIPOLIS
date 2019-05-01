@@ -249,7 +249,7 @@ function _init()
   checkpointy = -1
   checkpoint_number = 0 --pour l'animation du checkpoint
   spnum = 0
-  guit_found = false --si buffa a trouver la guitare
+  guit_found = false --si mich a trouver la guitare
   tmp = 0
   reattak = true --pour creer un delai entre les attaques
   level=1
@@ -614,36 +614,41 @@ function dialog_draw()
   else
     music(1) -- on active la musique
     if pnj.name=="stagiaire" then
-      dtb_disp("le stagiaire:ah vous voila enfin ! ces androids detruisent nos locaux c\'est la panique !")
+      dtb_disp("stagiaire: ah vous voila enfin ! ces androids detruisent nos locaux c\'est la panique !")
+	  dtb_disp("mich: est-ce que tu peux m\'aider ?")
+	  dtb_disp("stagiaire: euh...j\'ai trop peur ! allez sauver mon patron il est au bout du couloir !")
+	  dtb_disp("stagiaire: aaaaaaah!")
+	  dtb_disp("mich: ...wow")
       talked = true
       -- pas toucher
       pnj_speak = true
     end
     if pnj.name=="laffitte" then
-      dtb_disp("laffitte:cette machine a vraiment mis la pagaille dans sophia... de l\'autre cote du terrain il y a un ordinateur plutot louche...")
+      dtb_disp("laffitte: cette machine a vraiment mis la pagaille dans sophia, il a detruit la moitie du parc... de l\'autre cote du terrain il y a un ordinateur plutot louche...")
       talked = true
     end
     if pnj.name=="ordinateur" then
-      dtb_disp("mich : cette machine a l\'air agressive, je vais la bidouiller un peu...")
+      dtb_disp("mich: cette machine a l\'air agressive, je vais la bidouiller un peu...")
       dtb_disp("mich utilise ses competences en shell pour pirater l'ordinateur")
-      dtb_disp("ordinateur:tuer tous les humai... hmm hmm...appuyez sur \"c\" pour lancer une attaque sonore.")
+      dtb_disp("ordinateur: tuer tous les humai... hmm hmm...appuyez sur \"c\" pour lancer une attaque sonore.")
       talked = true
     end
     if pnj.name=="miranda" then
-      dtb_disp("miranda:salut mich, as tu deja entendu parler de jim gray ?")
-      dtb_disp("buffa: ...")
-      dtb_disp("miranda:quoi?")
-      dtb_disp("buffa: et donc les droids ca te choque pas ?")
-      dtb_disp("miranda:ah tu sais pour moi tout est tuples.")
+      dtb_disp("miranda: nous avons cree un ... monstre ! toi seul peut le vaincre !")
+      dtb_disp("mich: ou est-ce qu\'il se trouve ?")
+      dtb_disp("miranda: sort de ce batiment, il se trouve plus a l\'est !")
+      dtb_disp("mich: comment je peux m\'y prendre ?")
+      dtb_disp("miranda: il a un defaut au niveau de la carte son ... bonne chance !")
+	  dtb_disp("mich: merci beaucoup !")
       talked = true
     end
     if pnj.name=="laffitte2" then
-      dtb_disp("laffitte:ah te voila enfin mich! depeche toi de recuperer ton diplome.")
-      dtb_disp("buffa:merci president,j'aimerais apres vous dire deux mots au sujet de renevier.")
+      dtb_disp("laffitte: ah te voila enfin mich! depeche toi de recuperer ta cle numerique de la ville !")
+      dtb_disp("mich: merci beaucoup monsieur ! c/'est un honneur d/'avoir sauve servi la ville et la technopole !")
       talked = true
     end
     if pnj.name == "porte" then
-      dtb_disp("je devrais peut etre m'armer avant de rentrer")
+      dtb_disp("je devrais peut etre m'armer avant de rentrer...")
       talked = true
     end
   end 
@@ -1323,7 +1328,7 @@ function player_reset()
     projectils={}
       --platform volant sprite 64
     chrono=0 --sert pour animé le press x to play
-    hit = false --si buffa a pris un coup
+    hit = false --si mich a pris un coup
     del_acc = 0 -- pour creer un delay
     del_title=12
     hp = 125
