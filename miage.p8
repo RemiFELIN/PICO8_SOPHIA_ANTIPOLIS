@@ -143,7 +143,7 @@ end
 rectfill(bp+2,bq+124-bi*8,bp+126,bq+126,7)
 rectfill(bp+3,bq+125-bi*8,bp+125,bq+125,0)
 if bd>0 and#bc[#bc]==#q[1][bd] then
-print("—",bp+118,bq+120,1)
+print("ï¿½",bp+118,bq+120,1)
 end
 for h=1,bi do
 print(bc[h],4+bp,bq+h*8+119-(bi+bo)*8,7)
@@ -550,7 +550,7 @@ end
 if bv.fl=="ordinateur"then
 u("mich: cette machine a l'air agressive, je vais la bidouiller un peu...")
 u("mich utilise ses competences en shell pour pirater l'ordinateur")
-u("ordinateur: tuer tous les huma... hmm hmm...appuyez sur Ž pour lancer une attaque sonore.")
+u("ordinateur: tuer tous les huma... hmm hmm...appuyez sur ï¿½ pour lancer une attaque sonore.")
 ge=true
 end
 if bv.fl=="miranda"then
@@ -563,7 +563,7 @@ u("mich: merci beaucoup !")
 ge=true
 end
 if bv.fl=="laffitte2"then
-u("laffitte: te voila mon ami ! ton contrat officiel t'attend ! tu es maintenant parmis les plus grand de sophia-antipolis, tu l'as bien merite !")
+u("laffitte: te voila mon ami ! ton contrat officiel t'attend ! tu es maintenant parmis les plus grands de sophia-antipolis, tu l'as bien merite !")
 u("mich: merci beaucoup monsieur ! c'est un honneur d'avoir servi la ville et la technopole !")
 u("laffite: n'oublie pas d'attendre la fin de la ceremonie pour admirer le feu d'artifice en l'honneur de valbonne et de sophia-antipolis")
 ge=true
