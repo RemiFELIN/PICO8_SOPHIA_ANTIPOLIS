@@ -15,7 +15,7 @@ Notre projet est un jeu développé sous PICO 8 (language LUA) dans le cadre d'u
 
 - Yannick : *développeur du moteur*
 - Céline : *création de la map et des sprites - histoire*
-- Rémi : *création de musiques et des bruitages - histoire*
+- Rémi : *création des musiques et des bruitages - histoire*
 
 # Notre jeu
 
